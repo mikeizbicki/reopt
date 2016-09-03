@@ -10,6 +10,180 @@
 % headings for the authors names, plus a copyright note at the end of
 % the first column of the first page.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{graphicx}
+\usepackage{rotating}
+\usepackage{xcolor}
+%\usepackage[authordate,bibencoding=auto,strict,backend=biber,natbib]{biblatex-chicago}
+\usepackage[round]{natbib}   % omit 'round' option if you prefer square brackets
+\bibliographystyle{plainnat}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\newcommand{\Q}{\mathcal{Q}}
+\newcommand{\X}{\mathcal{X}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\w}{\theta}
+\newcommand{\wkl}{\hat\w^{kl}}
+\newcommand{\wave}{\hat\w^{ave}}
+\newcommand{\waver}{\hat\w^{ave,r}}
+\newcommand{\wboot}{\hat\w^{boot}}
+\newcommand{\wmle}{\hat\w^{mle}}
+\newcommand{\wmler}{\hat\w^{mle,r}}
+\newcommand{\wstar}{{\w^{*}}}
+\newcommand{\wq}{\hat\w^{q}}
+\newcommand{\wqstar}{\hat\w^{q^*}}
+\newcommand{\dist}{\mathcal{D}}
+
+\newcommand{\normal}[2]{\ensuremath{\mathcal{N}\left({{#1}},{{#2}}\right)}}
+\newcommand{\trans}[1]{\ensuremath{{#1}^{\mathsf{T}}}}
+\newcommand{\ltwo}[1]{{\lVert {#1} \rVert}_2}
+\newcommand{\lone}[1]{{\lVert {#1} \rVert}_1}
+\newcommand{\lzero}[1]{{\lVert {#1} \rVert}_0}
+
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\kl}{\text{KL}\infdivx}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{filecontents}{paper.bib}
+
+@inproceedings{merugu2003privacy,
+  title={Privacy-preserving distributed clustering using generative models},
+  author={Merugu, Srujana and Ghosh, Joydeep},
+  booktitle={Data Mining, 2003. ICDM 2003. Third IEEE International Conference on},
+  pages={211--218},
+  year={2003},
+  organization={IEEE}
+}
+
+@inproceedings{mcdonald2009efficient,
+  title={Efficient large-scale distributed training of conditional maximum entropy models},
+  author={McDonald, Ryan and Mohri, Mehryar and Silberman, Nathan and Walker, Dan and Mann, Gideon S},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1231--1239},
+  year={2009}
+}
+
+@inproceedings{zinkevich2010parallelized,
+  title={Parallelized stochastic gradient descent},
+  author={Zinkevich, Martin and Weimer, Markus and Li, Lihong and Smola, Alex J},
+  booktitle={Advances in neural information processing systems},
+  pages={2595--2603},
+  year={2010}
+}
+
+@inproceedings{zhang2012communication,
+  title={Communication-efficient algorithms for statistical optimization},
+  author={Zhang, Yuchen and Wainwright, Martin J and Duchi, John C},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1502--1510},
+  year={2012}
+}
+
+@article{liu2012distributed,
+  title={Distributed parameter estimation via pseudo-likelihood},
+  author={Liu, Qiang and Ihler, Alexander},
+  journal={arXiv preprint arXiv:1206.6420},
+  year={2012}
+}
+
+@inproceedings{zhang2013information,
+  title={Information-theoretic lower bounds for distributed statistical estimation with communication constraints},
+  author={Zhang, Yuchen and Duchi, John and Jordan, Michael I and Wainwright, Martin J},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={2328--2336},
+  year={2013}
+}
+
+@inproceedings{zhang2013divide,
+  title={Divide and Conquer Kernel Ridge Regression.},
+  author={Zhang, Yuchen and Duchi, John C and Wainwright, Martin J},
+  booktitle={COLT},
+  year={2013}
+}
+
+@inproceedings{zhang2012communication,
+  title={Communication-efficient algorithms for statistical optimization},
+  author={Zhang, Yuchen and Wainwright, Martin J and Duchi, John C},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1502--1510},
+  year={2012}
+}
+
+@article{vw,
+  author={Langford, John},
+  title={Vowpal Wabbit open source project},
+  %url={https://github.com/JohnLangford/vowpal_wabbit}
+}
+
+@article{agarwal2014reliable,
+  title={A reliable effective terascale linear learning system.},
+  author={Agarwal, Alekh and Chapelle, Olivier and Langford, John},
+  journal={Journal of Machine Learning Research},
+  volume={15},
+  number={1},
+  pages={1111--1133},
+  year={2014}
+}
+
+@inproceedings{liu2014distributed,
+  title={Distributed estimation, information loss and exponential families},
+  author={Liu, Qiang and Ihler, Alexander T},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1098--1106},
+  year={2014}
+}
+
+@inproceedings{shamir2014fundamental,
+  title = {Fundamental Limits of Online and Distributed Algorithms for Statistical Learning and Estimation},
+  author = {Shamir, Ohad},
+  booktitle = {Advances in Neural Information Processing Systems 27},
+  pages = {163--171},
+  year = {2014}
+}
+
+@article{duchi2014optimality,
+  title={Optimality guarantees for distributed statistical estimation},
+  author={Duchi, John C and Jordan, Michael I and Wainwright, Martin J and Zhang, Yuchen},
+  journal={arXiv preprint arXiv:1405.0782},
+  year={2014}
+}
+
+@inproceedings{garg2014communication,
+  title={On communication cost of distributed statistical estimation and dimensionality},
+  author={Garg, Ankit and Ma, Tengyu and Nguyen, Huy},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={2726--2734},
+  year={2014}
+}
+
+@article{braverman2015communication,
+  title={Communication lower bounds for statistical estimation problems via a distributed data processing inequality},
+  author={Braverman, Mark and Garg, Ankit and Ma, Tengyu and Nguyen, Huy L and Woodruff, David P},
+  journal={arXiv preprint arXiv:1506.07216},
+  year={2015}
+}
+
+@article{han2016bootstrap,
+  title={Bootstrap Model Aggregation for Distributed Statistical Learning},
+  author={Han, Jun and Liu, Qiang},
+  journal={arXiv preprint arXiv:1607.01036},
+  year={2016}
+}
+\end{filecontents}
+\immediate\write18{bibtex paper}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{document}
 
@@ -35,216 +209,170 @@
 
 \aistatsaddress{ Unknown Institution 1 \And Unknown Institution 2 \And Unknown Institution 3 } ]
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \begin{abstract}
-  The Abstract paragraph should be indented 0.25 inch (1.5 picas) on
-  both left and right-hand margins. Use 10~point type, with a vertical
-  spacing of 11~points. The {\bf Abstract} heading must be centered,
-  bold, and in point size 12. Two line spaces precede the
-  Abstract. The Abstract must be limited to one paragraph.
 \end{abstract}
 
-\section{GENERAL FORMATTING INSTRUCTIONS}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Both submitted and camera-ready versions of the paper are 8 pages,
-plus any additional pages needed for references.
+% one-shot distributed learning
+% communication efficient
+% non-interactive
 
-Papers are in 2 columns with the overall line width of 6.75~inches (41~picas). Each column is 3.25~inches wide (19.5~picas).  The space
-between the columns is .25~inches wide (1.5~picas).  The left margin is 1~inch (6~picas).  Use 10~point type with a vertical spacing of
-11~points. 
+%Used by Vowpal Wabbit \cite{vw,agarwal2014reliable}.
 
-Paper title is 16~point, caps/lc, bold, centered between 2~horizontal rules.  Top rule is 4~points thick and bottom rule is 1~point thick.
-Allow 1/4~inch space above and below title to rules.
+\section{INTRODUCTION}
+We consider the problem of distributed Maximum Likelihood Estimation (MLE) with only a single round of communication.
 
-Author descriptions are center-justified, initial caps.  The lead
-author is to be listed first (left-most), and the Co-authors are set
-to follow.  If up to three authors, use a single row of author
-descriptions, each one center-justified, and all set side by side;
-with more authors or unusually long names or institutions, use more
-rows.  (But, do not include author names in the initial double-blind
-submission!  Instead leave a row of ``Anonymous Author'' descriptions
-as above.)
+%In a Generalized Linear Model,
+%\begin{equation}
+%\begin{aligned}
+%y &= g^{-1}(\trans\x\w) + \epsilon
+%,~~~
+%\epsilon \sim \normal{0}{\sigma}
+%\end{aligned}
+%\end{equation}
 
-One-half line space between paragraphs, with no indent.
+\section{PROBLEM STATEMENT}
 
-\section{FIRST LEVEL HEADINGS}
+%Let $\dist$ be a distribution over $\mathbb{R}^d$,
+%and $X$ a dataset of $N$ points sampled from $\dist$.
+%The maximum likelihood estimator for the GLM is
+%\begin{equation}
+%\wstar=\argmax_\w \int_\dist f(\trans\x\w) + g(\w) dx
+%\end{equation}
+Let $\X$ be a probability space
+and $\Theta$ be the space of model parameters.
+Let $f : \X \times \Theta \to \mathbb{R}$ be the likelihood of the data given the model parameters.
+Then the true model parameters are given by
+\begin{equation}
+\wstar = \argmax_\w \int_\X f(\x;\w) d\x
+\end{equation}
+Since the distribution of $\X$ is typically unknown, $\wstar$ cannot be calculated directly.
+Instead, given a sample $X\in\X$, we calculate the MLE by
+\begin{equation}
+\wmle=\argmax_\w \sum_{\x\in X} f(\x;\w)
+\end{equation}
+When the dataset $X$ is too large to fit on a single machine,
+standard optimization methods cannot calculate $\wmle$ directly.
+A number of distributed optimization methods have been created,
+but these typically require one round of communication for each iteration of the optimization.
+This communication is the main bottleneck of the optimization.
 
-First level headings are all caps, flush left, bold, and in point size
-12. One line space before the first level heading and 1/2~line space
-after the first level heading.
+Our goal is to approximate $\wstar$ with only a single round of communication.
+Split the dataset $X$ into $m$ disjoint datasets $X_1,...,X_m$ each of size $n=\frac{N}{m}$.
+On each machine, solve the \emph{local} maximum likelihood estimate
+\begin{equation}
+\wmle_i = \argmax_\w \sum_{\x\in X_i} f(\x;\w)
+\end{equation}
+Solving for $\wmle_i$ requires no communication with other machines.
+Next, we need a function $q : \Theta^m \to \Theta$ that combines the parameter estimates from each machine.
+Define the resulting parameter estimate as
+\begin{equation}
+\wq = q(\wmle_1, \wmle_2, ..., \wmle_m)
+\end{equation}
+Let $\Q$ be the set of all functions from $\Theta^m\to\Theta$,
+and $Q$ be a subset of $\Q$.
+Our goal is to find the function
+\begin{equation}
+q^* = \argmin_{q\in Q} \ltwo{\wqstar - \wstar}
+\end{equation}
 
-\subsection{Second Level Heading}
+\section{RELATED WORK}
 
-Second level headings are initial caps, flush left, bold, and in point
-size 10. One line space before the second level heading and 1/2~line
-space after the second level heading.
+Related work can be divided into two categories:
+alternative $q$ estimators,
+and bounds on the communication complexity of distributed learning.
 
-\subsubsection{Third Level Heading}
+\subsection{Alternative estimators}
+The simplest and most popular communication efficient estimator is the averaging estimator
+\begin{equation}
+\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
+\end{equation}
+\cite{mcdonald2009efficient}
+ gave the first analysis of this estimator wherein they showed that the variance of the estimator reduces as $O(m^{-1/2})$, but that the bias of $\wave$ is the same as $\wmle_i$.
+\cite{zhang2012communication} showed that the Mean Squared Error (MSE) $\ltwo{\wave-\wstar}^2$ decays as $O((nm)^{-1} + n^{-2})$.
+This is slower than the optimal sequential algorithm which has a MSE of $O((mn)^{-2})$.
+Surprisingly, \cite{zhang2013divide} showed that in the special case of kernel ridge regression, a reduction in bias was not needed to have the MSE decay at the optimal sequential rate.
+By a careful choice of regularization parameter, they caused $\wmle_i$ to have lower bias but higher variance, so that the final estimate of $\wave$ had both reduced bias and variance.
 
-Third level headings are flush left, initial caps, bold, and in point
-size 10. One line space before the third level heading and 1/2~line
-space after the third level heading.
+Other research has focused on modifications to the $\wave$ estimator to reduce bias.
+\cite{zinkevich2010parallelized} showed that if the training sets partially overlap each other (instead of being disjoint), then the resulting estimator will have lower bias.
+\cite{zhang2012communication} also provided a bootstrap average estimator,
+which works as follows.
+Let $r\in(0,1)$, and $X_i^r$ be a bootstrap sample of $X_i$ with $rn$ data points.
+Then the bootstrap average estimator is
+\begin{equation}
+\begin{aligned}
+\wmler_i &= \argmax_\w \sum_{\x\in X_i^r} f(x;\w)
+\\
+\waver &= \frac{1}{m}\sum_{i=1}^m \wmler_i
+\\
+\wboot & = \frac{\wave-r\waver}{1-r}
+\end{aligned}
+\end{equation}
+This estimator enjoys a MSE decaying as $O((nm)^{-1}+n^{-3})$.
 
-\paragraph{Fourth Level Heading}
+%An alternative definition of the $\wave$ estimator is
+%\begin{equation}
+%\wave = \argmin_\w \frac{1}{m}\sum_{i=1}^m \ltwo{\wmle_i-\w}^2
+%\end{equation}
+%It is easy to show that the two definitions are equivalent with standard calculus.
 
-Fourth level headings must be flush left, initial caps, bold, and
-Roman type.  One line space before the fourth level heading, and
-place the section text immediately after the heading with, no line
-break, but an 11 point horizontal space.
+\cite{liu2014distributed} propose a more Bayesian approach inspired by \cite{merugu2003privacy}.
+Instead of averaging the model's parameters,
+they directly ``average the models'' with the following KL-average estimator.
+\begin{equation}
+\wkl = \argmin_\w \sum_{i=1}^m \kl[\bigg]{p(\cdot;\wmle_i)}{p(\cdot;\w)}
+\end{equation}
+The minimization is performed via a bootstrap sample from the smaller models.
+This method has two main advantages.
+First, it is robust to reparameterizations of the model.
+Second, it is statistically optimal for the class of non-interactive optimization methods.
+(We show in the next section that their bound does not apply to our procedure due to our semi-interactive setting.)
+The main downside of the KL-average is that the minimization has a prohibitively high computational cost.
+Let $n^{kl}$ be the size of the bootstrap sample.
+Then the original implementation's MSE shrinks as $O((nm)^{-1}+(nn^{kl})^{-1})$.
+This implies that the bootstrap procedure requires as many samples as the original problem to get a MSE that shrinks at the same rate as the averaging estimator.
+\cite{han2016bootstrap} show a method to reduce this rate to $O((nm)^{-1}+(n^2n^{kl})^{-1})$ using control variates, but the procedure remains prohibitively expensive.
+Their experiments show the procedure scaling only to datasets of size $nm\approx10^4$,
+whereas our experiments involve a dataset of size $nm\approx10^8$
 
-\subsection{CITATIONS, FIGURES, REFERENCES}
+\subsection{Performance bounds}
 
+Performance bounds come in two flavors: statistical and information theoretic.
+On the statistical side, \cite{liu2014distributed} showed that for an arbitrary function $q$ \emph{which does not depend on the data},
+$\ltwo{\wq-\wmle}^2$ decays as $\Omega(\gamma^2_\wstar I^{-1}_\wstar/n^2)$.
+Here $\gamma_\wstar$ is the statistical curvature of the model and $I_\wstar$ is the Fisher information.
+Furthermore, they show that $\wkl$ matches this bound.
+This bound is not relevant for our estimator because our merge function depends on the data.
+Furthermore, we directly optimize $\ltwo{\wq-\wstar}^2$ which is a more useful quantity in practice.
 
-\subsubsection{Citations in Text}
+\cite{shamir2014fundamental}, \cite{zhang2013information}, and \cite{garg2014communication} all provide information theoretic lower bounds on the sample complexity of non-interactive learning problems.
+As above, however, there results are not applicable in our semi-interactive setting.
+%provides general information theoretic bounds for what he terms learning with information constraints.
+%As a special case of Shamir's analysis is the non-interactive communication model where $q$ does not depend on the data.
+%When $q$ is allowed to depend on the data, his model no longer applies.
+There is one information theoretic lower bound that does apply to us.
+Let the true parameter vector $\wstar$ be $k$-sparse.
+That is, $\lzero{\wstar} \le k$.
+%Then \cite{zhang2013information} showed that at least $\Omega(mk/\log m)$ bits of communication are required in the non-interactive setting,
+%and \cite{garg2014communication} improved this lower bound to $\Omega(mk)$.
+Surprisingly, \cite{braverman2015communication} showed that the minimax optimal error rate for least squares regression requires $\Omega(m\cdot\min\{n,d\})$ bits of communication even in the fully interactive setting.
+This is important because sparsity does not reduce the amount of communication required, and this bound does apply in our setting.
 
-Citations within the text should include the author's last name and
-year, e.g., (Cheesman, 1985). References should follow any style that
-you are used to using, as long as their style is consistent throughout
-the paper.  Be sure that the sentence reads correctly if the citation
-is deleted: e.g., instead of ``As described by (Cheesman, 1985), we
-first frobulate the widgets,'' write ``As described by Cheesman
-(1985), we first frobulate the widgets.''  Be sure to avoid
-accidentally disclosing author identities through citations.
+%\section{OUR ALGORITHM}
+%
+%\section{ANALYSIS}
+%
+%\section{EXPERIMENTS}
+%
+%\section{CONCLUSION}
 
-\subsubsection{Footnotes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Indicate footnotes with a number\footnote{Sample of the first
-  footnote.} in the text. Use 8 point type for footnotes. Place the
-footnotes at the bottom of the column in which their markers appear,
-continuing to the next column if required. Precede the footnote
-section of a column with a 0.5 point horizontal rule 1~inch (6~picas)
-long.\footnote{Sample of the second footnote.}
-
-\subsubsection{Figures}
-
-All artwork must be centered, neat, clean, and legible.  All lines
-should be very dark for purposes of reproduction, and art work should
-not be hand-drawn.  Figures may appear at the top of a column, at the
-top of a page spanning multiple columns, inline within a column, or
-with text wrapped around them, but the figure number and caption
-always appear immediately below the figure.  Leave 2 line spaces
-between the figure and the caption. The figure caption is initial caps
-and each figure should be numbered consecutively.
-
-Make sure that the figure caption does not get separated from the
-figure. Leave extra white space at the bottom of the page rather than
-splitting the figure and figure caption.
-\begin{figure}[h]
-\vspace{.3in}
-\centerline{\fbox{This figure intentionally left non-blank}}
-\vspace{.3in}
-\caption{Sample Figure Caption}
-\end{figure}
-
-\subsubsection{Tables}
-
-All tables must be centered, neat, clean, and legible. Do not use hand-drawn tables. Table number and title always appear above the table.
-See Table~\ref{sample-table}.
-
-One line space before the table title, one line space after the table title, and one line space after the table. The table title must be
-initial caps and each table numbered consecutively.
-
-\begin{table}[h]
-\caption{Sample Table Title} \label{sample-table}
-\begin{center}
-\begin{tabular}{ll}
-{\bf PART}  &{\bf DESCRIPTION} \\
-\hline \\
-Dendrite         &Input terminal \\
-Axon             &Output terminal \\
-Soma             &Cell body (contains cell nucleus) \\
-\end{tabular}
-\end{center}
-\end{table}
-
-\section{SUPPLEMENTARY MATERIAL}
-
-If you need to include additional appendices during submission, you
-can include them in the supplementary material file.
-
-
-\newpage
-
-\section{INSTRUCTIONS FOR CAMERA-READY PAPERS}
-
-For the camera-ready paper, if you are using \LaTeX, please make sure
-that you follow these instructions.  (If you are not using \LaTeX,
-please make sure to achieve the same effect using your chosen
-typesetting package.)
-
-\begin{enumerate}
-    \item Install the package \texttt{fancyhdr.sty}. The
-    \texttt{aistats2015.sty} file will make use of it.
-    \item Begin your document with
-    \begin{flushleft}
-    \texttt{\textbackslash documentclass[twoside]\{article\}}\\
-    \texttt{\textbackslash usepackage[accepted]\{aistats2015\}}
-    \end{flushleft}
-    The \texttt{twoside} option for the class article allows the
-    package \texttt{fancyhdr.sty} to include headings for even and odd
-    numbered pages. The option \texttt{accepted} for the package
-    \texttt{aistats2015.sty} will write a copyright notice at the end of
-    the first column of the first page. This option will also print
-    headings for the paper.  For the \emph{even} pages, the title of
-    the paper will be used as heading and for \emph{odd} pages the
-    author names will be used as heading.  If the title of the paper
-    is too long or the number of authors is too large, the style will
-    print a warning message as heading. If this happens additional
-    commands can be used to place as headings shorter versions of the
-    title and the author names. This is explained in the next point.
-    \item  If you get warning messages as described above, then
-    immediately after $\texttt{\textbackslash
-    begin\{document\}}$, write
-    \begin{flushleft}
-    \texttt{\textbackslash runningtitle\{Provide here an alternative shorter version of the title of your
-    paper\}}\\
-    \texttt{\textbackslash runningauthor\{Provide here the surnames of the authors of your paper, all separated by
-    commas\}}
-    \end{flushleft}
-    The text that appears as argument in \texttt{\textbackslash
-      runningtitle} will be printed as a heading in the \emph{even}
-    pages. The text that appears as argument in \texttt{\textbackslash
-      runningauthor} will be printed as a heading in the \emph{odd}
-    pages.  If even the author surnames do not fit, it is acceptable
-    to give a subset of author names followed by ``et al.''
-
-    \item Use the file sample\_paper.tex as an example.
-
-    \item Both submitted and camera-ready versions of the paper are 8
-      pages, plus any additional pages needed for references.
-
-    \item If you need to include additional appendices,
-      you can include them in the supplementary
-      material file.
-
-    \item Please, don't change the layout given by the above
-      instructions and by the style file.
-
-\end{enumerate}
-
-\subsubsection*{Acknowledgements}
-
-Use unnumbered third level headings for the acknowledgements.  All
-acknowledgements go at the end of the paper.  Be sure to omit any
-identifying information in the initial double-blind submission!
-
-
-\subsubsection*{References}
-
-References follow the acknowledgements.  Use an unnumbered third level
-heading for the references section.  Any choice of citation style is
-acceptable as long as you are consistent.  Please use the same font
-size for references as for the body of the paper---remember that
-references do not count against your page length total.
-
-J.~Alspector, B.~Gupta, and R.~B.~Allen (1989). Performance of a
-stochastic learning microchip.  In D. S. Touretzky (ed.), {\it
-  Advances in Neural Information Processing Systems 1}, 748-760.  San
-Mateo, Calif.: Morgan Kaufmann.
-
-F.~Rosenblatt (1962). {\it Principles of Neurodynamics.} Washington,
-D.C.: Spartan Books.
-
-G.~Tesauro (1989). Neurogammon wins computer Olympiad.  {\it Neural
-  Computation} {\bf 1}(3):321-323.
+\bibliographystyle{plainnat}
+\bibliography{paper}
 
 \end{document}
