@@ -14,25 +14,45 @@
 
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{mathtools}
 \usepackage{graphicx}
 \usepackage{rotating}
 \usepackage{xcolor}
+\usepackage[inline]{enumitem}
 %\usepackage[authordate,bibencoding=auto,strict,backend=biber,natbib]{biblatex-chicago}
 \usepackage[round]{natbib}   % omit 'round' option if you prefer square brackets
 \bibliographystyle{plainnat}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\newtheorem{cor}{Corallary}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\vecspan}{span}
+\DeclareMathOperator*{\affspan}{aff}
+\DeclareMathOperator*{\tr}{tr}
 
+\newcommand{\zero}{\text{\textbf{0}}}
 \newcommand{\Q}{\mathcal{Q}}
+\newcommand{\Y}{\mathcal{Y}}
 \newcommand{\X}{\mathcal{X}}
+\newcommand{\W}{\mathcal{\hat W}}
+\newcommand{\Wave}{{\mathcal{\hat W}^{ave}}}
+\newcommand{\Wtave}{{\mathcal{W}^{ave,*}}}
+\newcommand{\V}{\mathcal{V}}
+\newcommand{\A}{\mathcal{A}}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\E}{\mathbb{E}}
 \newcommand{\x}{\mathbf{x}}
 \newcommand{\w}{\theta}
 \newcommand{\wkl}{\hat\w^{kl}}
+\newcommand{\wreopt}{\hat\w^{reopt}}
 \newcommand{\wave}{\hat\w^{ave}}
+\newcommand{\wtave}{\hat\w^{ave,*}}
 \newcommand{\waver}{\hat\w^{ave,r}}
 \newcommand{\wboot}{\hat\w^{boot}}
 \newcommand{\wmle}{\hat\w^{mle}}
@@ -42,20 +62,38 @@
 \newcommand{\wqstar}{\hat\w^{q^*}}
 \newcommand{\dist}{\mathcal{D}}
 
+\newcommand{\tbias}{t_{\text{\textit{bias}}}}
+\newcommand{\tvar}{t_{\text{\textit{var}}}}
+
+\newcommand{\I}{I}
+\newcommand{\Iinv}{I^{-1}}
+\newcommand{\law}{\ensuremath{\xrightarrow{L}}}
 \newcommand{\normal}[2]{\ensuremath{\mathcal{N}\left({{#1}},{{#2}}\right)}}
 \newcommand{\trans}[1]{\ensuremath{{#1}^{\mathsf{T}}}}
-\newcommand{\ltwo}[1]{{\lVert {#1} \rVert}_2}
+\newcommand{\ltwo}[1]{{\left\lVert {#1} \right\rVert}_2}
 \newcommand{\lone}[1]{{\lVert {#1} \rVert}_1}
 \newcommand{\lzero}[1]{{\lVert {#1} \rVert}_0}
+\newcommand{\proj}[1]{\pi_{{#1}}}
+\newcommand{\prob}[1]{\Pr\left[{#1}\right]}
 
 \DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
   #1\;\delimsize\|\;#2%
 }
 \newcommand{\kl}{\text{KL}\infdivx}
 
+\newcommand{\ignore}[1]{}
+\newcommand{\fixme}[1]{\textbf{FIXME:} {#1}}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{filecontents}{paper.bib}
+
+@book{lehmann1999elements,
+  title={Elements of large-sample theory},
+  author={Lehmann, Erich Leo},
+  year={1999},
+  publisher={Springer Science \& Business Media}
+}
 
 @inproceedings{merugu2003privacy,
   title={Privacy-preserving distributed clustering using generative models},
@@ -64,6 +102,28 @@
   pages={211--218},
   year={2003},
   organization={IEEE}
+}
+
+@article{dasgupta2003elementary,
+  title={An elementary proof of a theorem of {J}ohnson and {L}indenstrauss},
+  author={Dasgupta, Sanjoy and Gupta, Anupam},
+  journal={Random Structures \& Algorithms},
+  volume={22},
+  number={1},
+  pages={60--65},
+  year={2003},
+  publisher={Wiley Online Library}
+}
+
+@article{matouvsek2008variants,
+  title={On variants of the {J}ohnson--{L}indenstrauss lemma},
+  author={Matou{\v{s}}ek, Ji{\v{r}}{\'\i}},
+  journal={Random Structures \& Algorithms},
+  volume={33},
+  number={2},
+  pages={142--156},
+  year={2008},
+  publisher={Wiley Online Library}
 }
 
 @inproceedings{mcdonald2009efficient,
@@ -80,6 +140,17 @@
   booktitle={Advances in neural information processing systems},
   pages={2595--2603},
   year={2010}
+}
+
+@article{spokoiny2012parametric,
+  title={Parametric estimation. Finite sample theory},
+  author={Spokoiny, Vladimir},
+  journal={The Annals of Statistics},
+  volume={40},
+  number={6},
+  pages={2877--2909},
+  year={2012},
+  publisher={Institute of Mathematical Statistics}
 }
 
 @inproceedings{zhang2012communication,
@@ -117,6 +188,16 @@
   author={Zhang, Yuchen and Wainwright, Martin J and Duchi, John C},
   booktitle={Advances in Neural Information Processing Systems},
   pages={1502--1510},
+  year={2012}
+}
+
+@article{hsu2012tail,
+  title={A tail inequality for quadratic forms of subgaussian random vectors},
+  author={Hsu, Daniel and Kakade, Sham M and Zhang, Tong and others},
+  journal={Electron. Commun. Probab},
+  volume={17},
+  number={52},
+  pages={1--6},
   year={2012}
 }
 
@@ -165,6 +246,13 @@
   booktitle={Advances in Neural Information Processing Systems},
   pages={2726--2734},
   year={2014}
+}
+
+@book{shalev2014understanding,
+  title={Understanding machine learning: From theory to algorithms},
+  author={Shalev-Shwartz, Shai and Ben-David, Shai},
+  year={2014},
+  publisher={Cambridge University Press}
 }
 
 @article{braverman2015communication,
@@ -223,7 +311,7 @@
 %Used by Vowpal Wabbit \cite{vw,agarwal2014reliable}.
 
 \section{INTRODUCTION}
-We consider the problem of distributed Maximum Likelihood Estimation (MLE) with only a single round of communication.
+We consider the problem of distributed Maximum Likelihood Estimation (MLE).
 
 %In a Generalized Linear Model,
 %\begin{equation}
@@ -234,50 +322,572 @@ We consider the problem of distributed Maximum Likelihood Estimation (MLE) with 
 %\end{aligned}
 %\end{equation}
 
-\section{PROBLEM STATEMENT}
+\subsection{Problem Statement}
 
-%Let $\dist$ be a distribution over $\mathbb{R}^d$,
-%and $X$ a dataset of $N$ points sampled from $\dist$.
-%The maximum likelihood estimator for the GLM is
+%Let $\Theta\subseteq\mathbb{R}^d$ be the parameter space,
+%$\X\subseteq\mathbb{R}^d$ be the covariate space,
+%and $\Y\subseteq\mathbb{R}$ be the response space.
+%Let $Z\subset\X\times\Y$ be a set of $mn$ i.i.d. datapoints.
+%Then the centralized Maximum Likelihood Estimator (MLE) is defined as
 %\begin{equation}
-%\wstar=\argmax_\w \int_\dist f(\trans\x\w) + g(\w) dx
+%\wmle = \argmax_\w \sum_{(\x,y)\in Z} f(y-\trans\x\w)
 %\end{equation}
-Let $\X$ be a probability space
-and $\Theta$ be the space of model parameters.
-Let $f : \X \times \Theta \to \mathbb{R}$ be the likelihood of the data given the model parameters.
-Then the true model parameters are given by
-\begin{equation}
-\wstar = \argmax_\w \int_\X f(\x;\w) d\x
-\end{equation}
-Since the distribution of $\X$ is typically unknown, $\wstar$ cannot be calculated directly.
-Instead, given a sample $X\in\X$, we calculate the MLE by
-\begin{equation}
-\wmle=\argmax_\w \sum_{\x\in X} f(\x;\w)
-\end{equation}
-When the dataset $X$ is too large to fit on a single machine,
-standard optimization methods cannot calculate $\wmle$ directly.
-A number of distributed optimization methods have been created,
-but these typically require one round of communication for each iteration of the optimization.
-This communication is the main bottleneck of the optimization.
 
-Our goal is to approximate $\wstar$ with only a single round of communication.
-Split the dataset $X$ into $m$ disjoint datasets $X_1,...,X_m$ each of size $n=\frac{N}{m}$.
-On each machine, solve the \emph{local} maximum likelihood estimate
+Let $\Y\subseteq\mathbb{R}$ be the space of response variables,
+$X\subseteq\mathbb{R}^d$ be the space of the covariates,
+and $\Theta\subseteq\mathbb{R}^d$ be the parameter space.
+We assume a linear model.
+The log-likelihood of data point $(\x,y)\in\X\times\Y$ given the model's true parameter $\wstar\in\Theta$ is denoted by $f(y,\trans\x\wstar)$.
+%\begin{equation}
+%y = g^{-1}(\trans\x\wstar)
+%\end{equation}
+%Here, $g : \mathbb{R} \to \mathbb{R}$ is the link function and $\wstar\in\Theta\subseteq\mathbb{R}^d$ is the true parameter of our model.
+Let $Z\subset\X\times\Y$ be a dataset of $mn$ i.i.d. observations.
+Then the maximum likelihood estimator is
 \begin{equation}
-\wmle_i = \argmax_\w \sum_{\x\in X_i} f(\x;\w)
+%\wmle=\argmax_\w \sum_{i=1}^{nm} g(y_i-\trans\x_i\w)
+\wmle=\argmax_\w \sum_{(\x,y)\in Z} f(y,\trans\x\w)
+\end{equation}
+Assume that $Z$ has been split up onto $m$ machines so that each machine $i$ has dataset $Z_i$ of size $n$, and all the $Z_i$ are disjoint.
+Then each machine calculates the local estimator
+\begin{equation}
+\wmle_i = \argmax_\w \sum_{(\x,y) \in Z_i} f(y,\trans\x\w)
 \end{equation}
 Solving for $\wmle_i$ requires no communication with other machines.
-Next, we need a function $q : \Theta^m \to \Theta$ that combines the parameter estimates from each machine.
-Define the resulting parameter estimate as
+Our goal is to provide a function $q : \Theta^m \to \Theta$ that ``merges'' these estimates.
+The resulting merged estimate should have error as close to $\wmle$ as possible.
+
+%Next, we need a function $q : \Theta^m \to \Theta$ that combines the parameter estimates from each machine.
+%Define the resulting parameter estimate as
+%\begin{equation}
+%\wq = q(\wmle_1, \wmle_2, ..., \wmle_m)
+%\end{equation}
+%Let $\Q$ be the set of all functions from $\Theta^m\to\Theta$,
+%and $Q$ be a subset of $\Q$.
+%Our goal is to find the function
+%\begin{equation}
+%q^* = \argmin_{q\in Q} \ltwo{\wqstar - \wstar}
+%\end{equation}
+
+\subsection{Proposed Solution}
+
+The averaging estimator is defined as
 \begin{equation}
-\wq = q(\wmle_1, \wmle_2, ..., \wmle_m)
+\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
 \end{equation}
-Let $\Q$ be the set of all functions from $\Theta^m\to\Theta$,
-and $Q$ be a subset of $\Q$.
-Our goal is to find the function
+Define the matrix $\hat W : \mathbb{R}^{d\times m}$ to have $i$th column equal $\wmle_i-\wave$.
+Then our estimator is defined as
 \begin{equation}
-q^* = \argmin_{q\in Q} \ltwo{\wqstar - \wstar}
+\begin{aligned}
+\hat\alpha &= \argmax_\alpha \sum _{(\x,y)\in Z^{reopt}} f\left(y,\trans\x (\hat W\alpha + \wave)\right)
+\\
+\wreopt &= \hat W \hat\alpha + \wave
+\end{aligned}
 \end{equation}
+where $Z^{reopt}$ is a small dataset of size $O(m)$.
+In the analysis of this estimator, we assume that $Z^{reopt}$ is independent of the $\wmle_i$;
+that is, the data points in $Z^{reopt}$ were not used in the single machine optimizations.
+In practice, however, this restriction is not necessary.
+
+This estimator has the following intuitive interpretation.
+We use the $\wmle_i$ estimates from the first round of communication to create a subspace $\Wave=\affspan\{\wave\}\cup{\{\wmle\}}_{i=1}^m$.
+Then in the second round of optimization, we project all of our data points down into this subspace.
+Because this subspace is small, we need only a small number of data points to get a good estimate of the optimum.
+Because of the way we constructed $\Wave$,
+the optimum in $\Wave$ will be close to the true optimum.
+%The true parameter $\wstar$ should be close to this subspace.
+%In the first round of optimization (determining the $\wmle_i$s),
+%we're actually finding a subspace
+%The estimator $\wreopt$ lives in a subs
+
+\newpage
+\section{ANALYSIS}
+
+
+\subsection{Notation}
+
+\subsection{Few data points are needed}
+\label{sec:vcdim}
+
+Define the space
+$\Wave=\affspan\{\wave_i\}_{i=1}^m\cup\{\wave\}$.
+Define $L : \mathbb{R} \to \mathbb{R}$ to be the 0-1 loss over the true data distribution.
+
+\begin{theorem}
+Let $\w^\Wave$ be an arbitrary point in $\Wave$ and $\delta\in(0,1)$.
+Then with probability at least $1-\delta$,
+\begin{equation}
+L(\wreopt) \le L(\w^\Wave) + O\left(\sqrt{\frac{m + \log(1/\delta)}{n^{reopt}}}\right)
+\end{equation}
+\end{theorem}
+\begin{proof}
+For each machine $i$, fix the set of data points $Z_i$.
+This in turn fixes the $\wmle_i$ and the space $\Wave$.
+The hypothesis class defined by $\Wave$ has VC dimension $m$ because it is linear with $m$ parameters.
+Since each of the data points in $Z^{reopt}$ is independent of $\Wave$,
+the result follows immediately from standard VC theory.
+See for example Chapter 6 of \cite{shalev2014understanding}.
+%
+%\fixme{
+    %Need to rework the definitions in Section 1 so that the data points in the second optimization don't depend on the first optimization.
+%}
+\end{proof}
+
+\subsection{In the Normal Regime}
+\label{sec:normal}
+
+\subsubsection{Assumptions}
+
+We assume that for every estimator $\hat\w$ trained on $n$ data points,
+\begin{equation}
+\label{eq:assumption}
+\hat\w - \E\hat\w \sim \frac{1}{\sqrt n}\normal{\zero}{I^{-1}_{\E\hat\w}}
+%\hat\w \sim \normal{\E\hat\w}{\frac{1}{n}I^{-1}_{\E\hat\w}}
+\end{equation}
+%
+%Throughout Section \ref{sec:normal} we assume that $\wave_i$ is normally distributed with mean $\wtave$ and covariance $\frac{1}{n}I^{-1}_{\wtave}$.
+%\begin{equation}
+%\label{eq:assumption}
+%\wmle_i \sim \normal{\E\wmle_i}{\frac{1}{n}I^{-1}_{\E\wmle_i}}
+%\end{equation}
+%Here, $I_{\wtave}$ is the Fisher information matrix at point $\wtave$.
+Here, $I_{\E\hat\w}$ is the Fisher information matrix for parameter $\E\hat\w$.
+This assumption is motivated by the central limit theorem for maximum likelihood estimation.
+%There are many versions of this theorem.
+Theorem 7.5.2 of \cite{lehmann1999elements} is particularly simple version and reproduced below.
+\begin{theorem}
+\label{thm:clt}
+Assume the following mild regularity conditions:
+\begin{enumerate}[noitemsep,topsep=0pt]%,label=(\itshape\roman*)]
+\item all data points in $Z_i$ are i.i.d.;
+\item the parameter space $\Theta$ is open;
+\item the model is identifiable and consistent;
+\item the matrix $\I_{\wtave}$ is non-singular;
+\item the support set $A = \{(y,\x) : f(y,\x;\theta) > 0\}$ is independent of $\theta$;
+and \item for all $(y,\x)\in A$, $f(y,\x;\theta)$ is three times differentiable with respect to $\theta$,
+and the third derivative is continuous.
+\end{enumerate}
+Then in the limit as $n\to\infty$,
+\begin{equation*}
+\wave_i \law \wtave + \frac{1}{\sqrt n} \normal{0}{\Iinv_\wstar}
+\end{equation*}
+Here the notation $\law$ denotes convergence in law,
+which is the standard notion of convergence for a sequence of probability distributions.
+\end{theorem}
+
+Note that Theorem \ref{thm:clt} does not require the likelihood $f$ to be convex.
+
+
+There are many generalizations of Theorem \ref{thm:clt}.
+For example, Theorem 4.2 in \cite{spokoiny2012parametric} provides finite sample bounds with explicit dependence on the degree of model misspecification, optimization error, and the lack of independence in the data variables.
+Because Spokoiny's theorem is non-asymptotic, the theorem that the estimator is a sub-Gaussian random variable.
+
+\subsubsection{Analyzing $\wave$}
+
+We provide a simple bound that shows that averaging does not improve the bias of our estimator,
+but reduces the variance at the rate $O((nm)^{-1})$.
+This bound is well known, but our analysis is significantly simpler and provides a sharp, easy to interpret constant factor.
+The main idea of our technique is to show that the variance is normally distributed.
+The ideas in this proof will be used in Section \ref{sec:analreopt} where we show that the variance of $\wreopt$ is the same as $\wave$, but that the bias is reduced.
+
+\begin{theorem}
+Let $t>0$.
+Then with probability at least $1-\exp(-t)$,
+\begin{equation}
+\ltwo{\wstar-\wave}^2 \le \ltwo{\wstar-\E\wmle_i}^2 + \frac{v_t}{mn}
+\end{equation}
+where
+\begin{equation}
+v_t =
+\tr{\Iinv_{\wtave}}
++ 2\sqrt{\tr ({\I^{-2}_{\wtave}})t}
++ 2\ltwo{\Iinv_{\wtave}}t
+\end{equation}
+\end{theorem}
+\begin{proof}
+It is well known that the MSE of an estimator is the sum of its bias and variance.
+That is,
+\begin{equation}
+\ltwo{\wstar-\wave}^2 = \ltwo{\wstar-\E\wave}^2 + \ltwo{\E\wave-\wave}^2
+\label{eq:biasvar}
+\end{equation}
+By the linearity of expectation, we have that
+\begin{align}
+\E\wave
+&=
+\E\frac{1}{m}\sum_{i=1}^m\wmle_i
+%\\&=
+=
+\frac{1}{m}\sum_{i=1}^m\E\wmle_i
+=
+\E\wmle_i
+\label{eq:expwave}
+\end{align}
+and so the bias
+$\ltwo{\wstar-\E\wave}
+=
+\ltwo{\wstar-\E\wmle_i}
+$.
+Next, we see that the variance is a Gaussian random variable.
+We have by Equations \ref{eq:expwave} and \ref{eq:assumption} that
+\begin{align}
+\wave-\E\wave
+&=
+\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wave\right)
+\\&=
+\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)
+\\&\sim
+\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{\sqrt n}\normal\zero{I^{-1}_{\E\wave}}\right)
+\\&=
+\frac{1}{\sqrt {nm}}\normal\zero{I^{-1}_{\E\wave}}
+%\\&\sim
+%\frac{1}{m}\normal{m\E\wmle_i}{\frac{m}{n}I^{-1}}
+%\\&\sim
+%\normal{\E\wmle_i}{\frac{1}{nm}I^{-1}}
+%\\
+%\wave-\E\wmle_i
+%&\sim
+%\normal{\zero}{\frac{1}{nm}I^{-1}}
+%\\
+%\wave-\E\wave
+%&\sim
+\end{align}
+%Centering the distribution and applying Equation \ref{eq:expwave} gives
+%\begin{equation}
+%\E\wave-\wave
+%\sim
+%\normal{\zero}{\frac{1}{nm}I^{-1}}
+%\end{equation}
+So bounding the variance reduces to bounding the norm of a Gaussian.
+Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives that with probability at least $1-\exp(-t)$,
+\begin{equation}
+\ltwo{\E\wave-\wave}^2 \le \frac{v_t}{\sqrt{nm}}
+\label{eq:ct1}
+\end{equation}
+%where
+%\begin{equation}
+%\begin{aligned}
+%v_t'
+   %= \tr\left({\frac{1}{mn}\I^{-1}_{\wtave}}\right)
+%+ 2&\sqrt{\tr \left({\frac{1}{mn}\I^{-1}_{\wtave}}\right)^2t}&
+%\\+ 2\ltwo{\frac{1}{nm}\I^{-1}_{\wtave}}t&
+%\end{aligned}
+%\end{equation}
+%Then by the linearity of trace and scalability of norms,
+%\begin{equation}
+%v_t' =
+%\frac{1}{mn}\left(
+%\tr\I^{-1}_{\wtave}
+%+ 2\sqrt{\tr \I^{-2}_{\wtave}t}
+%+ 2\ltwo{\I^{-1}_{\wtave}}t
+%\right)
+%\label{eq:ct2}
+%\end{equation}
+Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:biasvar} gives the stated result.
+
+\end{proof}
+
+%\begin{theorem}
+%Let $t>0$.
+%Then with probability at least $1-\exp(-t)$,
+%\begin{equation}
+%\ltwo{\wave-\wtave} \le \sqrt{\frac{v_t}{mn}}
+%\end{equation}
+%where
+%\begin{equation}
+%v_t =
+%\tr{\Iinv_{\wtave}}
+%+ 2\sqrt{\tr ({\I^{-2}_{\wtave}})t}
+%+ 2\ltwo{\Iinv_{\wtave}}t
+%\end{equation}
+%\end{theorem}
+
+%\begin{proof}
+%By our assumption above, we have that
+%\begin{equation}
+%\wave \sim \wtave+\normal{0}{\frac{1}{nm}I^{-1}_{\wtave}}
+%\end{equation}
+%which implies
+%\begin{equation}
+%\wave - \wtave \sim \normal{0}{\frac{1}{nm}I^{-1}_{\wtave}}
+%\end{equation}
+%So our problem reduces to bounding the norm of a Gaussian random variable.
+%Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives the stated result.
+%\end{proof}
+
+%\ignore{
+%We introduce the following lemma due to \cite{hsu2012tail} for bounding the norm of a Gaussian random variable.
+%\begin{lemma}
+%\label{lemma:hsu}
+%Let $\x\in\mathbb{R}^d$ be an isotropic multivariate Gaussian random vector with zero mean.
+%Let $\trans A A = \Sigma$ be the covariance matrix of random vector $A\x$.
+%For all $t>0$,
+%\begin{equation}
+%\prob{\ltwo{A\x}^2 > \tr{\Sigma} + 2\sqrt{\tr (\Sigma^2)t} + 2\ltwo{\Sigma}t}
+%\le
+%\exp(-t)
+%\end{equation}
+%\end{lemma}
+%A straightforward application of this lemma gives us that with probability at least $1 - \exp(-\tvar)$,
+%\begin{equation}
+%\begin{split}
+%%\prob{
+%&\ltwo{\wave-\wtave}
+%\\
+%&\le
+%\sqrt{
+    %\frac{1}{m}
+    %\left(\tr{\Iinv_{\wtave}}
+        %+ 2\sqrt{\tr ({\Iinv_{\wtave}}^2)\tvar}
+        %+ 2\ltwo{\Iinv_{\wtave}}\tvar
+    %\right)
+%}
+%%}
+%\end{split}
+%\end{equation}
+%}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Analyzing $\wreopt$}
+\label{sec:analreopt}
+
+We now extend the analysis of the previous section to the $\wreopt$ estimator.
+We show that its variance is bounded by the variance of $\wave$,
+but that the bias shrinks as $O(1-m/d)$.
+
+Recall from Section \ref{sec:vcdim} that the estimator $\wreopt$ has low error with high probability compared to any parameters in the space $\Wave$.
+Denote by $\proj\Wave$ the projection operator onto the space $\Wave$.
+In this section, we analyze the bias and variance of $\proj\Wave\wstar$.
+
+\begin{theorem}
+Let $t>0$.
+Then we have that
+\begin{equation}
+\ltwo{\wstar-\proj\Wave\wstar}
+\le
+b_t\sqrt{\left(1-\frac{m}{d}\right)}
++
+\sqrt\frac{v_{t}}{nm}
+\end{equation}
+where
+\begin{equation}
+b_t = \ltwo{\wstar-\E\wmle_i}\sqrt{t + 1}
+\end{equation}
+with probability at least $1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$,
+and $v_t$ is defined as in Theorem \ref{thm:}, Equation \ref{eq:} with probability at least $1-\exp(-t)$.
+\end{theorem}
+%Define the spaces
+%\begin{align}
+%\W&=\vecspan\{\wmle_i - \wave\}_{i=1}^m\\
+%\Wave&=\affspan\{\wave_i\}_{i=1}^m\cup\{\wave\}\\
+%\Wtave&=\affspan\{\wave_i\}_{=1}^m\cup\{\wtave\}
+%%\Wave&=\vecspan\{\wave_i-\wave\}_{i=1}^m\\
+%%\Wtave&=\vecspan\{\wave_i-\wtave\}_{i=1}^m
+%\end{align}
+%Denote by $\proj\A$ to be the projection operator onto the space $\A$.
+%Denote by $I_\w$ the Fischer information matrix at the point $\w$.
+
+\ignore{
+\begin{theorem}
+%Assume that $n$ is large enough that $\wmle_i$ is distributed according to $\normal{\wtave}{\Iinv_{\wtave}}$.
+%Let $\delta\in(0,1)$.
+%Then with probability at least $1-\delta$,
+We have that
+\begin{equation}
+\ltwo{\wstar-\proj\Wave\wstar}
+\le \epsilon_{bias} + \epsilon_{var}
+\end{equation}
+where for all $\tbias>0$,
+\begin{equation*}
+%\begin{split}
+%\prob{
+    \epsilon_{bias}
+    \le
+    \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}
+%}
+%\\
+%\ge
+%1-\exp \bigg(-\frac{b}{2} (\beta-\ln(\beta+1))\bigg)~~&
+%\end{split}
+\end{equation*}
+with probability at least
+$1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$
+and for all $\tvar>0$,
+\begin{equation*}
+\begin{split}
+&\epsilon_{var}
+\\
+&\le
+\sqrt{
+    \frac{1}{m}
+    \left(\tr{\Iinv_{\wtave}}
+        + 2\sqrt{\tr ({I^{-2}_{\wtave}})\tvar}
+        + 2\ltwo{\Iinv_{\wtave}}\tvar
+    \right)
+}
+\end{split}
+\end{equation*}
+with probability at least $1-\exp(-\tvar)$.
+
+%\begin{equation}
+%\begin{split}
+%&\ltwo{\wstar-\proj\Wave\wstar}
+%\\
+%&\le
+%\ltwo{\wstar-\wtave}\sqrt{(\beta + 1)\left(1-\frac{m}{d}\right)}
+%\\
+%&+
+%\sqrt{
+    %\frac{1}{m}
+    %\left(\tr{\Iinv_{\wtave}}
+        %+ 2\sqrt{\tr ({\Iinv_{\wtave}}^2)t}
+        %+ 2\ltwo{\Iinv_{\wtave}}t
+    %\right)
+%}
+%\le
+%\exp \bigg(-\frac{b}{2} (\beta-\ln(\beta+1))\bigg)~~&
+%\end{split}
+%\end{equation}
+\end{theorem}
+}
+
+\begin{proof}
+Note that the space $\Wave$ depends on the data.
+Therefore, we can think of $\proj\Wave\wstar$ as an estimator of $\wstar$.
+As in the proof of Theorem \ref{thm:},
+we begin by decomposing the MSE into its bias and variance components.
+\begin{equation}
+\begin{split}
+\ltwo{\wstar-\proj\Wave\wstar}^2
+&=
+\ltwo{\wstar-\E\proj\Wave\wstar}^2
+\\&+
+\ltwo{\E\proj\Wave\wstar-\proj\Wave\wstar}^2
+\end{split}
+\end{equation}
+%Define $\Wtave = \vecspan\{\wmle_i-\wtave\}_{i=1}^m$.
+%Then,
+We have that
+\begin{align}
+\ltwo{\wstar-\proj\Wave\wstar}
+&\le
+\ltwo{\wstar-\proj\Wtave\wstar}
++
+\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
+\\
+&=
+\ltwo{\wstar-\proj\Wtave\wstar}
++
+\ltwo{\wave-\wtave}
+\label{eq:errdecomp}
+\end{align}
+The first line follows from the triangle inequality.
+The second line follows because every point in $\Wtave$ is a translation of a point in $\Wave$ by the vector $\wave-\wtave$.
+
+%\begin{lemma}
+%Let $a$ and $b$ be integers with $b<a$.
+%Let $\x$ be a random vector on the $a$ dimensional unit sphere.
+%Let $T : \mathbb{R}^a \to \mathbb{R}^b$ be the projection operator that preserves the first $b$ coordinates of a vector and drops the rest.
+%Then for all $\beta>0$,
+%\begin{equation}
+%\prob{\ltwo{T\x} \ge \sqrt{(\beta + 1)\frac{b}{a}}}
+%\le
+%\exp \left(\frac{b}{2}(-\beta+\ln(\beta+1))\right)
+%\end{equation}
+%\end{lemma}
+We will now bound the two terms in Equation \ref{eq:errdecomp} separately.
+To bound the left term, we introduce the following lemma.
+It is adapted from Lemma 2.2 in \cite{dasgupta2003elementary}.
+It has been simplified to ignore cases irrelevant for our purpose.
+\begin{lemma}
+Let $a$ and $b$ be integers with $b<a$.
+Let $\x\in\mathbb{R}^a$ be an arbitrary vector.
+Let $T : \mathbb{R}^a \to \mathbb{R}^b$ be projection onto a subspace of size $b$ distributed uniformly at random.
+Then for all $\beta>0$,
+\begin{equation}
+\begin{split}
+\prob{\ltwo{T\x} \ge \ltwo\x\sqrt{(\beta + 1)\frac{b}{a}}}&
+\\
+\le
+\exp \bigg(-\frac{b}{2} & (\beta-\ln(\beta+1))\bigg)
+\end{split}
+\end{equation}
+\end{lemma}
+To apply this lemma, note that $\proj\Wtave$ is not a linear projection but an affine projection.
+We first apply a translation so that we are working with the linear projection $\proj\W$.
+\begin{align}
+\ltwo{\wstar-\proj\Wtave\wstar}
+&=
+\ltwo{(\wstar-\wtave)-\proj\W(\wstar-\wtave)}
+\\
+&=
+\ltwo{(I-\proj\W)(\wstar-\wtave)}
+\end{align}
+Now, $(I-\proj\W)$ is a random projection onto a subspace of dimension $d-m$.
+(\fixme{This projection is not chosen uniformly at random because the covariance of $\wmle_i$ is not the identity.})
+This gives us that for all $\tbias>0$,
+\begin{equation}
+\begin{split}
+\prob{\ltwo{\wstar-\proj\Wtave\wstar} \ge \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}}&
+\\
+\le
+\exp \bigg(-\frac{b}{2} (\tbias-\ln(\tbias+1))\bigg)~~&
+\end{split}
+\end{equation}
+
+\end{proof}
+
+%The following lemma is adapted from Theorem 3.1 in \cite{matouvsek2008variants}.
+%It has been simplified to ignore cases irrelevant for our purpose.
+%\begin{lemma}
+%Let $a$ and $b$ be integers with $a>b$.
+%Let $T\in\mathbb{R}^{a\times b}$ be a random matrix with entries drawn i.i.d. from the standard normal distribution.
+%Let $\x\in\mathbb{R}^a$ be an arbitrary vector.
+%Then there exists a constant $c$ such that for all $\delta\in(0,1)$,
+%\begin{equation*}
+%\prob{\ltwo{T\x} \le \left(\sqrt{b}+c\sqrt{\log\frac{\delta}{2}}\right)\ltwo\x} \le 1-\delta
+%\end{equation*}
+%\end{lemma}
+
+%\begin{cor}
+%%Assume that Conditions (1-5) hold.
+%%Then as $n\to\infty$,
+%%\begin{enumerate}
+%%\item
+%If $f$ is locally $\sigma$-strongly convex,
+%\begin{equation}
+%\ltwo{\wstar-\wreopt} \le
+%\end{equation}
+%%\end{enumerate}
+%\end{cor}
+%
+%\begin{proof}
+%\end{proof}
+
+%\subsection{Proposed Solution}
+%
+%We propose the following solution.
+%Define the matrix $W : \mathbb{R}^{d\times m}$ to have $i$th column equal $\wmle_i$.
+%%That is,
+%%\begin{equation}
+%%W = (\wmle_1, \wmle_2, ..., \wmle_m)
+%%\end{equation}
+%Then our estimator is defined as
+%\begin{equation}
+%\begin{aligned}
+%\alpha &= \argmax_\w \sum _{(\x,y)\in Z_i} f(y,\trans\x W\w)
+%\\
+%\w &= \trans W \alpha
+%\end{aligned}
+%\end{equation}
+%Note that the inner $\w$ above is a vector of dimension $m$, not $d$ (as elsewhere).
+%In words
+%%In words, this estimator takes the data set $Z'$ and projects it onto the subspace spanned by the
+
+\newpage
+
+\clearpage
 
 \section{RELATED WORK}
 
@@ -362,17 +972,182 @@ That is, $\lzero{\wstar} \le k$.
 Surprisingly, \cite{braverman2015communication} showed that the minimax optimal error rate for least squares regression requires $\Omega(m\cdot\min\{n,d\})$ bits of communication even in the fully interactive setting.
 This is important because sparsity does not reduce the amount of communication required, and this bound does apply in our setting.
 
-%\section{OUR ALGORITHM}
-%
-%\section{ANALYSIS}
-%
-%\section{EXPERIMENTS}
-%
-%\section{CONCLUSION}
+\newpage
+\ignore{
+\section{ANALYSIS}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+First we justify why only a small number of data points is needed for the second optimization.
+For simplicity, we'll restrict our discussion to the case of binary classification.
+This lets us use standard VC-dimension arguments.
+
+\subsection{Few datapoints are needed in the optimization}
+
+%Recall the following theorem from standard VC theory.
+%\begin{theorem}
+%Let $Z$ be a dataset of $n$ points sampled i.i.d. from distribution $\D$.
+%Let $\wmle$ be the parameters of the maximum likelihood estimator of $Z$.
+%Let $L : \Theta \to \mathbb{R}$ be the true 0-1 loss on the distribution $\D$.
+%Let $d$ be the VC dimension of the hypothesis class $\Theta$.
+%Then with probability at least $1-\delta$,
+%\begin{equation}
+%L(\wmle) \le L(\wstar) + O\left(\sqrt{\frac{d + \log(1/\delta)}{n}}\right)
+%\end{equation}
+%\end{theorem}
+%For an extended discussion of the above theorem,
+%see for example Chapter 6 of \cite{shalev2014understanding}.
+\begin{theorem}
+%Let $\Y=\{0,1\}$.
+Define $\alpha^{*}$ to be the optimal parameter constrained to the space spanned by the columns of $W$.
+In notation,
+\begin{equation}
+\alpha^{*} = \argmax_{\alpha} \int_{\Y\times\X} f(y,\trans\x W\alpha) d(y,\x)
+\end{equation}
+Define $L : \mathbb{R} \to \mathbb{R}$ to be the 0-1 loss over the true data distribution.
+Then with probability at least $1-\delta$,
+\begin{equation}
+L(\alpha^*) \le L(\alpha) + O\left(\sqrt{\frac{m + \log(1/\delta)}{n^{reopt}}}\right)
+\end{equation}
+\end{theorem}
+\begin{proof}
+For each machine $i$, fix the set of data points $Z_i$
+(which in turn fixes the $\wmle_i$).
+Define $\A$ to be the space of parameters
+\begin{equation}
+\A=\{\trans W\w : \w \in \Theta\}
+\end{equation}
+The linear hypothesis class defined by $\A$ has VC dimension $m$.
+Since each of the data points in $Z^{reopt}$ is independent of $W$,
+the result follows immediately from standard VC theory.
+See for example Chapter 6 of \cite{shalev2014understanding}.
+\end{proof}
+
+\begin{theorem}
+
+\end{theorem}
+
+\ignore{
+\subsection{Overall growth}
+
+In this section we assume the following regularity conditions.
+
+\begin{theorem}
+Assume conditions (1-5) above hold.
+%Let $m$ be arbitrary.
+Then in the limit as $n$ approaches $\infty$:
+\begin{enumerate}
+\item
+If $f$ is locally $\sigma$-strongly convex around $\wstar$
+\begin{equation}
+\Pr{a}
+\end{equation}
+\item
+If $f$ is locally $\ell$-Lipschitz around $\wstar$
+(i.e. ),
+then
+\begin{equation}
+\end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{lemma}
+\label{lem:normaff}
+Let $W : \mathbb{R}^{d\times m}$ be a random matrix where each entry is distributed as a standard Gaussian.
+Let $\Wave$ be the affine hull of the columns of $W$;
+that is,
+\begin{equation}
+\Wave = \left\{\sum_{i=1}^m c_i\wmle_i : c\in\mathbb{R}, \sum_{i=1}^m c_i = 1 \right\}
+\end{equation}
+Then for all $t$,
+\begin{equation}
+\Pr\left[\ltwo{\proj{W}0}^2 > O(t(1-m/d))\right] \le 1 - \exp(-t)
+\end{equation}
+\end{lemma}
+}
+
+\section{EXPERIMENTS}
+
+\subsection{Synthetic Data}
+
+\subsection{Real World Advertising Data}
+
+\section{CONCLUSION}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \bibliographystyle{plainnat}
 \bibliography{paper}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\ignore{
+\newpage
+\section*{Appendix: Proof of Lemma \ref{lem:normaff}}
+
+%\cite{hsu2012tail}
+%\begin{lemma}
+%\label{lemma:hsu}
+%Let $\x\in\mathbb{R}^d$ be an isotropic multivariate Gaussian random vector with zero mean.
+%For all $t>0$,
+%\begin{equation}
+%\prob{\ltwo{A\z}^2 > \tr{\Sigma} + 2\sqrt{\tr (\Sigma^2)t} + 2\ltwo{\Sigma}t}
+%\le
+%\exp(-t)
+%\end{equation}
+%\end{lemma}
+
+Define $\V$ to be the vector space spanned by the first $m-1$ columns of $\Wave$.
+That is, $\V=\vecspan\{\wmle_i\}_{i=1}^{m-1}$.
+We have that
+\begin{align}
+\ltwo{\w-\proj{\Wave}\w}
+&\le \ltwo{\w - \proj{\Wave}\proj{\V}\w}
+\\
+%&\le \ltwo{}
+& \le \ltwo{\w - \proj{\V}\w} + \ltwo{\proj{\V}\w - \proj{\Wave}\proj{\V}\w}
+\end{align}
+The first inequality follows by the definition of $\proj\Wave\w$ as the point in $\Wave$ with minimum distance to $\w$,
+and the second follows by the triangle inequality.
+%\begin{align}
+%\ltwo{\w - \proj{H_m}\w}
+%& \le \ltwo{\w - \proj{H_m}\proj{V_{m-1}}\w} & \text{by definition of $\proj{}$}\\
+%& \le \ltwo{\w - \proj{V_{m-1}}\w} + \ltwo{\proj{V_{m-1}}\w - \proj{H_m}\proj{V_{m-1}}\w} &\text{by triangle ineq.}
+%\end{align}
+We will bound each of these terms separately.
+
+The left term above can be bound directly using standard random projection techniques.
+%The following lemma is a restatement of Lemma 2.2 from \cite{dasgupta2003elementary}.
+%It has been simplified to ignore cases irrelevant for our purpose.
+%\begin{lemma}
+%\label{lem:dasgupta}
+%Let $\x\in\mathbb{R}^d$ be an arbitrary vector and $W\in\mathbb{R}^{d\times m}$ be a random matrix with entries drawn i.i.d. from the standard normal distribution.
+%Then for all $t>1$,
+%\begin{equation*}
+%\prob{\ltwo{W\x} \ge \sqrt\frac{tm}{d}} \le \exp\left(\frac{m}{2}(1-t+\ln t)\right)
+%\end{equation*}
+%%Let $\delta\in(0,1)$ and $c$ be a suitable constant.
+%%Then for all $\x\in\mathbb{R}^d$, we have
+%%\begin{equation}
+%%\prob{\ltwo{W\x} \le (1+\epsilon)\ltwo{\x}} \ge 1 - \delta
+%%\end{equation}
+%\end{lemma}
+%To apply Lemma \ref{lem:dasgupta},
+%notice that $\ltwo{\w-\proj{\V}\w} = \ltwo{(I-\proj\V)\w}$.
+%\begin{equation}
+%\prob{\ltwo{\w-\proj{V}\w} \ge \sqrt{t\left(1-\frac{m}{d}\right)}} \le \exp\left(\frac{d-m}{2}(1-t+\ln t)\right)
+%\end{equation}
+%
+The following lemma is adapted from Theorem 3.1 in \cite{matouvsek2008variants}.
+It has been simplified to ignore cases irrelevant for our purpose.
+\begin{lemma}
+Let $a$ and $b$ be integers with $a>b$.
+Let $T\in\mathbb{R}^{a\times b}$ be a random matrix with entries drawn i.i.d. from the standard normal distribution.
+Let $\x\in\mathbb{R}^a$ be an arbitrary vector.
+Then there exists a constant $c$ such that for all $\delta\in(0,1)$,
+\begin{equation*}
+\prob{\ltwo{T\x} \le \left(\sqrt{b}+c\sqrt{\log\frac{\delta}{2}}\right)\ltwo\x} \le 1-\delta
+\end{equation*}
+\end{lemma}
+}
 
 \end{document}
