@@ -1,5 +1,9 @@
-% File:  aistats2015.sty
+% File:  aistats2017.sty
 
+% Modified Scott Alfeld, 2016: changed venue, year, and volume number.
+%
+% Modified Zoltan Szabo, 2015: change venue, year, volume number.
+%
 % Modified Antti Honkela, 2013: change venue, year
 %
 % Modified Miro Dudik, 2011, 2012: change venue, year and volume number
@@ -20,17 +24,17 @@
 
 \NeedsTeXFormat{LaTeX2e}
 
-\ProvidesPackage{aistats2015}
+\ProvidesPackage{aistats2017}
 
 \DeclareOption{accepted}{\renewcommand{\statePaper}{\acceptedPaper}%
                          \renewcommand{\Notice@String}{\AISTATS@appearing}}
 
 \newcommand{\statePaper}{0}
 \newcommand{\acceptedPaper}{1}
-\newcommand{\Notice@String}{Preliminary work.  Under review by  AISTATS 2015.  Do not distribute.}
-\newcommand{\AISTATS@appearing}{Appearing in Proceedings of the $18^{th}$ International Conference on Artificial
-  Intelligence and Statistics (AISTATS) 2015, San Diego, CA, USA\@. JMLR: W\&CP volume 38. Copyright
-  2015 by the authors.}
+\newcommand{\Notice@String}{Preliminary work.  Under review by  AISTATS 2017.  Do not distribute.}
+\newcommand{\AISTATS@appearing}{Appearing in Proceedings of the $20^{th}$ International Conference on Artificial
+  Intelligence and Statistics (AISTATS) 2017, Fort Lauderdale, Flordia, USA\@. JMLR: W\&CP volume 54. Copyright
+  2017 by the authors.}
 
 \ProcessOptions\relax
 
@@ -110,7 +114,7 @@
 
    \ifnum\statePaper=0
     {
-     \gdef\@runningtitle{Manuscript under review by AISTATS 2015}
+     \gdef\@runningtitle{Manuscript under review by AISTATS 2017}
     }
    \fi
 
@@ -177,7 +181,7 @@
 
    \ifnum\statePaper=0
     {
-     \gdef\@runningauthor{Manuscript under review by AISTATS 2015}
+     \gdef\@runningauthor{Manuscript under review by AISTATS 2017}
     }
    \fi
 

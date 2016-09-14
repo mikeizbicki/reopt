@@ -1,5 +1,5 @@
 \documentclass[twoside]{article}
-\usepackage{aistats2015}
+\usepackage{aistats2017}
 
 % If your paper is accepted, change the options for the package
 % aistats2015 as follows:
@@ -20,9 +20,19 @@
 \usepackage{rotating}
 \usepackage{xcolor}
 \usepackage[inline]{enumitem}
+
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+%\usepackage{algorithmicx}
+%\usepackage{algorithm2e}
+
 %\usepackage[authordate,bibencoding=auto,strict,backend=biber,natbib]{biblatex-chicago}
 \usepackage[round]{natbib}   % omit 'round' option if you prefer square brackets
 \bibliographystyle{plainnat}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{width=7cm,compat=1.8}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -41,6 +51,7 @@
 \newcommand{\Y}{\mathcal{Y}}
 \newcommand{\X}{\mathcal{X}}
 \newcommand{\W}{\mathcal{\hat W}}
+\newcommand{\Waff}{\mathcal{\hat A}}
 \newcommand{\Wave}{{\mathcal{\hat W}^{ave}}}
 \newcommand{\Wtave}{{\mathcal{W}^{ave,*}}}
 \newcommand{\V}{\mathcal{V}}
@@ -48,11 +59,12 @@
 \newcommand{\D}{\mathcal{D}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\x}{\mathbf{x}}
+\newcommand{\y}{\mathbf{y}}
 \newcommand{\w}{\theta}
 \newcommand{\wkl}{\hat\w^{kl}}
 \newcommand{\wreopt}{\hat\w^{reopt}}
 \newcommand{\wave}{\hat\w^{ave}}
-\newcommand{\wtave}{\hat\w^{ave,*}}
+\newcommand{\wtave}{\E\hat\w^{ave}}
 \newcommand{\waver}{\hat\w^{ave,r}}
 \newcommand{\wboot}{\hat\w^{boot}}
 \newcommand{\wmle}{\hat\w^{mle}}
@@ -65,12 +77,12 @@
 \newcommand{\tbias}{t_{\text{\textit{bias}}}}
 \newcommand{\tvar}{t_{\text{\textit{var}}}}
 
-\newcommand{\I}{I}
-\newcommand{\Iinv}{I^{-1}}
+\newcommand{\I}{\mathcal I}
+%\newcommand{\I^{-1}}{\I^{-1}}
 \newcommand{\law}{\ensuremath{\xrightarrow{L}}}
 \newcommand{\normal}[2]{\ensuremath{\mathcal{N}\left({{#1}},{{#2}}\right)}}
 \newcommand{\trans}[1]{\ensuremath{{#1}^{\mathsf{T}}}}
-\newcommand{\ltwo}[1]{{\left\lVert {#1} \right\rVert}_2}
+\newcommand{\ltwo}[1]{{\left\lVert {#1} \right\rVert}}
 \newcommand{\lone}[1]{{\lVert {#1} \rVert}_1}
 \newcommand{\lzero}[1]{{\lVert {#1} \rVert}_0}
 \newcommand{\proj}[1]{\pi_{{#1}}}
@@ -311,16 +323,44 @@
 %Used by Vowpal Wabbit \cite{vw,agarwal2014reliable}.
 
 \section{INTRODUCTION}
-We consider the problem of distributed Maximum Likelihood Estimation (MLE).
 
-%In a Generalized Linear Model,
-%\begin{equation}
-%\begin{aligned}
-%y &= g^{-1}(\trans\x\w) + \epsilon
-%,~~~
-%\epsilon \sim \normal{0}{\sigma}
-%\end{aligned}
-%\end{equation}
+Many modern datasets are too large to fit in the memory of a single machine,
+so they must be partitioned onto many machines.
+%These datasets are typically partitioned onto many machines.
+%Statistical learning algorithms are then run in a distributed manner.
+%There are two main strategies for these distributed algorithms.
+To analyze these datasets, we need distributed algorithms.
+Existing distributed algorithms can be classified as either interactive or non-interactive.
+In this paper we propose an algorithm that exhibits the benefits of both types.
+
+\emph{Interactive algorithms} require many rounds of communication between machines.
+These algorithms often resemble standard iterative algorithms where each iteration is followed by a communication step.
+The appeal of interactive algorithms is that they enjoy the same statistical regret bounds as standard sequential algorithms.
+Unfortunately, these algorithms can be too slow in practice because communication is the main bottleneck in modern distributed architectures,
+and these algorithms require many rounds of communication.
+
+\emph{Non-interactive} algorithms require only a single round of communication.
+They are significantly faster than interactive algorithms
+but have worse regret bounds.
+Recent work (discussed in Section \ref{sec:bounds}) has shown that no non-interactive algorithm can achieve regret bounds comparable to an interactive one.
+The popular large scale learning system Vowpal Wabbit cleverly uses both types of algorithms to achieve good real world performance.
+A non-interactive algorithm is run first to provide a good warm start to a subsequent interactive algorithm \citep{vw,agarwal2014reliable}.
+%Synonyms for non-interactive algorithms used in the literature include \emph{one-shot distributed learning} and \emph{communication efficient learning}.
+
+In this paper, we propose a \emph{semi-interactive} distributed algorithm called XXX.
+Our algorithm performs two rounds of communication,
+so it is not subject to the existing regret bounds of non-interactive algorithms.
+The amount of information communicated in the second round is small, however,
+so our algorithm retains the speed advantages of non-interactive algorithms.
+
+%In the remainder of this paper, we first formally describe our problem and proposed solution.
+%We then provide a detailed comparison between our method and existing methods.
+%We then provide a theoretical analysis.
+%We conclude with an empirical analysis.
+
+%\section{PROBLEM AND SOLUTION}
+
+We now formally describe our problem and proposed solution.
 
 \subsection{Problem Statement}
 
@@ -338,17 +378,19 @@ $X\subseteq\mathbb{R}^d$ be the space of the covariates,
 and $\Theta\subseteq\mathbb{R}^d$ be the parameter space.
 We assume a linear model.
 The log-likelihood of data point $(\x,y)\in\X\times\Y$ given the model's true parameter $\wstar\in\Theta$ is denoted by $f(y,\trans\x\wstar)$.
+Our analysis in Section \ref{sec:anal} places very mild restrictions on $f$.
+In particular, $f$ need not be convex.
+%For our experiments in Section \ref{sec:exp}, however, we restrict ourselves to the likelihood for logistic regression
 %\begin{equation}
-%y = g^{-1}(\trans\x\wstar)
+%f(y,\trans\x\w) =
 %\end{equation}
-%Here, $g : \mathbb{R} \to \mathbb{R}$ is the link function and $\wstar\in\Theta\subseteq\mathbb{R}^d$ is the true parameter of our model.
 Let $Z\subset\X\times\Y$ be a dataset of $mn$ i.i.d. observations.
 Then the maximum likelihood estimator is
 \begin{equation}
 %\wmle=\argmax_\w \sum_{i=1}^{nm} g(y_i-\trans\x_i\w)
 \wmle=\argmax_\w \sum_{(\x,y)\in Z} f(y,\trans\x\w)
 \end{equation}
-Assume that $Z$ has been split up onto $m$ machines so that each machine $i$ has dataset $Z_i$ of size $n$, and all the $Z_i$ are disjoint.
+Assume that $Z$ has been partitioned onto $m$ machines so that each machine $i$ has dataset $Z_i$ of size $n$, and all the $Z_i$ are disjoint.
 Then each machine calculates the local estimator
 \begin{equation}
 \wmle_i = \argmax_\w \sum_{(\x,y) \in Z_i} f(y,\trans\x\w)
@@ -371,25 +413,47 @@ The resulting merged estimate should have error as close to $\wmle$ as possible.
 
 \subsection{Proposed Solution}
 
-The averaging estimator is defined as
-\begin{equation}
-\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
-\end{equation}
-Define the matrix $\hat W : \mathbb{R}^{d\times m}$ to have $i$th column equal $\wmle_i-\wave$.
+%The averaging estimator is defined as
+%\begin{equation}
+%\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
+%\end{equation}
+%Then our estimator is defined as
+%\begin{equation}
+%\begin{aligned}
+%\hat\alpha &= \argmax_\alpha \sum _{(\x,y)\in Z^{reopt}} f\left(y,\trans\x (\hat W\alpha + \wave)\right)
+%\\
+%\wreopt &= \hat W \hat\alpha + \wave
+%\end{aligned}
+%\end{equation}
+%where $Z^{reopt}$ is a small dataset of size $O(m)$.
+Define the matrix $\hat W : \mathbb{R}^{d\times m}$ to have $i$th column equal to $\wmle_i$.
+Let $n^{reopt}$ be an integer less than $n$,
+and $Z^{reopt}_i$ be a subset of $Z_i$ randomly sampled without replacement.
 Then our estimator is defined as
 \begin{equation}
 \begin{aligned}
-\hat\alpha &= \argmax_\alpha \sum _{(\x,y)\in Z^{reopt}} f\left(y,\trans\x (\hat W\alpha + \wave)\right)
+%Z_i^{proj} &= \{(y,\x\hat W) : (y,\x) \in Z_i^{reopt}\}
+%\\
+\hat\alpha &= \argmax_\alpha \sum _{(\x,y)\in Z^{reopt}} f\left(y,\trans\x \hat W\alpha \right)
 \\
-\wreopt &= \hat W \hat\alpha + \wave
+\wreopt &= \hat W \hat\alpha
 \end{aligned}
 \end{equation}
-where $Z^{reopt}$ is a small dataset of size $O(m)$.
-In the analysis of this estimator, we assume that $Z^{reopt}$ is independent of the $\wmle_i$;
-that is, the data points in $Z^{reopt}$ were not used in the single machine optimizations.
-In practice, however, this restriction is not necessary.
+%In the analysis of this estimator, we assume that $Z^{reopt}$ is independent of the $\wmle_i$;
+%that is, the data points in $Z^{reopt}$ were not used in the single machine optimizations.
+%In practice, however, this restriction is not necessary.
 
-This estimator has the following intuitive interpretation.
+%Notice that this estimator requires two rounds of communication.
+There are two ways to implement this estimator.
+The simplest is with two rounds of communication.
+In the first round, each machine broadcasts its value of $\wmle_i$ to every other machine.
+In the second round, each machine sends $Z_i^{proj}$ to a predesignated machine.
+This predesignated machine performs the second optimization and outputs the final answer.
+The full procedure is shown in Algorithm \ref{alg:distributed} above.
+There is an alternative implementation if there is a common set of data points $Z^{common}$ possessed by each machine in addition to $Z_i$.
+
+Our estimator has the following intuitive interpretation.
+Let $\W$ be the column space of $\hat W$.
 We use the $\wmle_i$ estimates from the first round of communication to create a subspace $\Wave=\affspan\{\wave\}\cup{\{\wmle\}}_{i=1}^m$.
 Then in the second round of optimization, we project all of our data points down into this subspace.
 Because this subspace is small, we need only a small number of data points to get a good estimate of the optimum.
@@ -400,8 +464,185 @@ the optimum in $\Wave$ will be close to the true optimum.
 %we're actually finding a subspace
 %The estimator $\wreopt$ lives in a subs
 
-\newpage
+\begin{figure}
+\hspace{-0.1in}
+\begin{tikzpicture}
+    [
+    dot/.style = {minimum width=0.15cm,inner sep=0pt,line width=0pt,fill,circle,black,font=\small}
+    ]
+\draw[gray] plot [smooth cycle,tension=1] coordinates {(-0.5,-0.5) (-1.05,1) (-0.1,-0.1) (0.75,-0.5) (0.45,-0.7) };
+\draw[gray] plot [smooth cycle,tension=1] coordinates {(-0.85,-0.65) (-1.3,1.55) (0.25,0) (2.5,-0.5) (1,-0.95)};
+\draw[gray] plot [smooth cycle,tension=1] coordinates {(-1.15,-1) (-1.5,2) (1,0) (5,0) (3,-0.95)};
+
+\draw[thick] (-2.2,2.15) -- (5.5,1);
+
+\node[dot] (wstar) at (-0.25,-0.25) {};
+\node at (0,-0.45) {$\wstar$};
+
+%\node[dot] (wstarproj) at (0.1,1.8) {};
+%\draw (wstar) -- (wstarproj);
+%\draw (0.07,1.65) -- (0.23,1.62) -- (0.26,1.78);
+
+%\node[dot] (wavestar) at (4,0.5) {};
+%\node                 at (4.5,0.3) {$\E\wave$};
+\node[dot] (wave) at (3.8,1.25) {};
+\node at (4.0,1.6) {$\wave$};
+\node[dot] (wave) at (2.9,1.40) {};
+\node at (3.1,1.75) {$\wmle_1$};
+\node[dot] (wave) at (4.7,1.10) {};
+\node at (4.9,1.45) {$\wmle_2$};
+%\node[dot] (wave) at (3.8,1.25) {};
+
+\node[dot] at (-1.35,2.03) {};
+\node at (-1.1,2.4) {$\wreopt$};
+
+\node at (4,-1.25) {$f(y,\trans\x\w)$};
+\node at (5.75,1) {$\W$};
+
+\end{tikzpicture}
+\caption{
+    Our method performs a second round of optimization to find the best parameter vector in $\W$.
+    Since $\wave\in\W$, our estimator $\wreopt$ is guaranteed to have higher true likelihood with high probability.
+}
+\label{fig:contour}
+\end{figure}
+
+\begin{algorithm}[t]
+\caption{Estimation in two rounds}
+\label{alg:distributed}
+\begin{algorithmic}
+\State Each machine $i$ independently
+\State ~~~~~loads dataset $Z_i$
+\State ~~~~~calculates $\wmle_i$
+\State All machines broadcast $\wmle_i$ to all other machines
+\State Each machine $i$ independently
+\State ~~~~~constructs $\hat W$
+\State ~~~~~randomly selects a dataset $Z^{reopt}_i\subset Z_i$
+\State ~~~~~calculates $\trans\x\hat W$
+\State All machines broadcast $Z^{reopt}_i$ to a master machine
+\State The master calculates $\wreopt$
+\end{algorithmic}
+%\label{fig:alg}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Estimation with common data}
+\label{alg:distributed}
+\begin{algorithmic}
+\State Each machine $i$ independently
+\State ~~~~~loads dataset $Z_i$
+\State ~~~~~calculates $\wmle_i$
+\State All machines broadcast $\wmle_i$ to all other machines
+\State Each machine $i$ independently
+\State ~~~~~constructs $\hat W$
+\State ~~~~~randomly selects a dataset $Z^{reopt}_i\subset Z_i$
+\State ~~~~~calculates $\trans\x\hat W$
+\State All machines broadcast $Z^{reopt}_i$ to a master machine
+\State The master calculates $\wreopt$
+\end{algorithmic}
+%\label{fig:alg}
+\end{algorithm}
+
+\section{RELATED WORK}
+
+Related work can be divided into two categories:
+alternative $q$ estimators,
+and bounds on the communication complexity of distributed learning.
+
+\subsection{Alternative estimators}
+\label{sec:alt}
+The simplest and most popular communication-efficient estimator is the averaging estimator
+\begin{equation}
+\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
+\end{equation}
+
+Previous analysis of $\wave$ makes a number of limiting assumptions.
+\cite{mcdonald2009efficient} gave the first analysis of this estimator in the special case of L2 regularized maximum entropy models.
+They provide tail bounds on $\ltwo{\wstar-\wave}$, showing that the variance of the estimator reduces as $O((nm)^{-1/2})$ with high probability,
+but they could not show a reduction in bias.
+Their analysis uses a martingale technique that requires the radius of the dataset be independent of the size of the dataset.
+This is a particularly limiting assumption as even the simple case of Gaussian distributed data does not satisfy it.
+\cite{zhang2012communication} provide a more general analysis showing that the Mean Squared Error (MSE) $\E\ltwo{\wstar-\wave}^2$ decays as $O((nm)^{-1} + n^{-2})$.
+This matches the optimal MSE of $\wmle$ whenever $m<n$.
+Their analysis still requires a number of technical assumptions.
+For example, they assume the parameter space $\Theta$ is bounded.
+This assumption does not hold under the standard Bayesian interpretation of L2 regularization as a Gaussian prior of the parameter space.
+They further make strong convexity and 8\emph{th} order smoothness assumptions which guarantee that $\wmle_i$ is a ``nearly unbiased estimator'' of $\wstar$.
+(As we will see in the next section,
+recently developed information theoretic bounds show these assumptions are required to show a reduction in MSE to the single machine rate.)
+Surprisingly, \cite{zhang2013divide} showed that in the special case of kernel ridge regression, a reduction in bias was not needed to have the MSE decay at the optimal sequential rate.
+By a careful choice of regularization parameter, they caused $\wmle_i$ to have lower bias but higher variance, so that the final estimate of $\wave$ had both reduced bias and variance.
+
+Other research has focused on modifications to the $\wave$ estimator to reduce bias.
+\cite{zinkevich2010parallelized} showed that if the training sets partially overlap each other (instead of being disjoint), then the resulting estimator will have lower bias.
+The authors admit their analysis is ``highly technical.''
+\cite{zhang2012communication} also provided a bootstrap average estimator,
+which works as follows.
+Let $r\in(0,1)$, and $X_i^r$ be a bootstrap sample of $X_i$ with $rn$ data points.
+Then the bootstrap average estimator is
+\begin{equation}
+\begin{aligned}
+\wmler_i &= \argmax_\w \sum_{\x\in X_i^r} f(x;\w)
+\\
+\waver &= \frac{1}{m}\sum_{i=1}^m \wmler_i
+\\
+\wboot & = \frac{\wave-r\waver}{1-r}
+\end{aligned}
+\end{equation}
+The intuition behind this estimator is to use the bootstrap sample to directly estimate and correct for the bias.
+This estimator enjoys a MSE decaying as $O((nm)^{-1}+n^{-3})$.
+
+%An alternative definition of the $\wave$ estimator is
+%\begin{equation}
+%\wave = \argmin_\w \frac{1}{m}\sum_{i=1}^m \ltwo{\wmle_i-\w}^2
+%\end{equation}
+%It is easy to show that the two definitions are equivalent with standard calculus.
+
+\cite{liu2014distributed} propose a more Bayesian approach inspired by \cite{merugu2003privacy}.
+Instead of averaging the model's parameters,
+they directly ``average the models'' with the following KL-average estimator.
+\begin{equation}
+\wkl = \argmin_\w \sum_{i=1}^m \kl[\bigg]{p(\cdot;\wmle_i)}{p(\cdot;\w)}
+\end{equation}
+The minimization is performed via a bootstrap sample from the smaller models.
+This method has two main advantages.
+First, it is robust to reparameterizations of the model.
+Second, it is statistically optimal for the class of non-interactive optimization methods.
+(We show in the next section that their bound does not apply to our $\wreopt$ estimator due to our semi-interactive setting.)
+The main downside of the KL-average is that the minimization has a prohibitively high computational cost.
+Let $n^{kl}$ be the size of the bootstrap sample.
+Then the original implementation's MSE shrinks as $O((nm)^{-1}+(nn^{kl})^{-1})$.
+This implies that the bootstrap procedure requires as many samples as the original problem to get a MSE that shrinks at the same rate as the averaging estimator.
+\cite{han2016bootstrap} show a method to reduce this rate to $O((nm)^{-1}+(n^2n^{kl})^{-1})$ using control variates, but the procedure remains prohibitively expensive.
+Their experiments show the procedure scaling only to datasets of size $nm\approx10^4$,
+whereas our experiments involve a dataset of size $nm\approx10^8$
+
+\subsection{Performance bounds}
+\label{sec:bounds}
+
+Performance bounds come in two flavors: statistical and information theoretic.
+On the statistical side, \cite{liu2014distributed} showed that for an arbitrary function $q$ \emph{which does not depend on the data},
+$\ltwo{\wq-\wmle}^2$ decays as $\Omega(\gamma^2_\wstar \I^{-1}_\wstar/n^2)$.
+Here $\gamma_\wstar$ is the statistical curvature of the model and $\I_\wstar$ is the Fisher information.
+Furthermore, they show that $\wkl$ matches this bound.
+This bound is not relevant for our estimator because our merge function depends on the data.
+Furthermore, we directly optimize $\ltwo{\wq-\wstar}^2$ which is a more useful quantity in practice.
+
+\cite{shamir2014fundamental}, \cite{zhang2013information}, and \cite{garg2014communication} all provide information theoretic lower bounds on the sample complexity of non-interactive learning problems.
+As above, however, there results are not applicable in our semi-interactive setting.
+%provides general information theoretic bounds for what he terms learning with information constraints.
+%As a special case of Shamir's analysis is the non-interactive communication model where $q$ does not depend on the data.
+%When $q$ is allowed to depend on the data, his model no longer applies.
+There is one information theoretic lower bound that does apply to us.
+Let the true parameter vector $\wstar$ be $k$-sparse.
+That is, $\lzero{\wstar} \le k$.
+%Then \cite{zhang2013information} showed that at least $\Omega(mk/\log m)$ bits of communication are required in the non-interactive setting,
+%and \cite{garg2014communication} improved this lower bound to $\Omega(mk)$.
+Surprisingly, \cite{braverman2015communication} showed that the minimax optimal error rate for least squares regression requires $\Omega(m\cdot\min\{n,d\})$ bits of communication even in the fully interactive setting.
+This is important because sparsity does not reduce the amount of communication required, and this bound does apply in our setting.
+
 \section{ANALYSIS}
+\label{sec:anal}
 
 
 \subsection{Notation}
@@ -434,14 +675,32 @@ See for example Chapter 6 of \cite{shalev2014understanding}.
 \end{proof}
 
 \subsection{In the Normal Regime}
-\label{sec:normal}
+%\label{sec:normal}
+%
+%We say that a random vector $X$ is \emph{sub-Gaussian} with mean $\mu$ and covariance $\Sigma$
+%if there exists a constant $c>0$ such that
+%\begin{equation}
+%\prob{\ltwo{\Sigma(X-\mu)} > t} \le c \exp(-t^2)
+%\end{equation}
+%We denote this relationship in symbols as $X \lesssim \normal{\mu}{\Sigma}$.
+%
+%\begin{theorem}
+%We have that with probability at least
+%\begin{equation}
+%\wmle-\wstar \lesssim \frac{1}{\sqrt{n}}\normal{\zero}{\I^{-1}_{\wstar}}
+%\end{equation}
+%In the limit as $n\to\infty$, we have the stronger statement that
+%\begin{equation}
+%\wmle-\wstar \sim \frac{1}{\sqrt{n}}\normal{\zero}{\I^{-1}_{\wstar}}
+%\end{equation}
+%\end{theorem}
 
 \subsubsection{Assumptions}
 
 We assume that for every estimator $\hat\w$ trained on $n$ data points,
 \begin{equation}
 \label{eq:assumption}
-\hat\w - \E\hat\w \sim \frac{1}{\sqrt n}\normal{\zero}{I^{-1}_{\E\hat\w}}
+\hat\w - \E\hat\w \sim \frac{1}{\sqrt n}\normal{\zero}{\I^{-1}_{\E\hat\w}}
 %\hat\w \sim \normal{\E\hat\w}{\frac{1}{n}I^{-1}_{\E\hat\w}}
 \end{equation}
 %
@@ -451,7 +710,7 @@ We assume that for every estimator $\hat\w$ trained on $n$ data points,
 %\wmle_i \sim \normal{\E\wmle_i}{\frac{1}{n}I^{-1}_{\E\wmle_i}}
 %\end{equation}
 %Here, $I_{\wtave}$ is the Fisher information matrix at point $\wtave$.
-Here, $I_{\E\hat\w}$ is the Fisher information matrix for parameter $\E\hat\w$.
+Here, $\I_{\E\hat\w}$ is the Fisher information matrix for parameter $\E\hat\w$.
 This assumption is motivated by the central limit theorem for maximum likelihood estimation.
 %There are many versions of this theorem.
 Theorem 7.5.2 of \cite{lehmann1999elements} is particularly simple version and reproduced below.
@@ -469,7 +728,7 @@ and the third derivative is continuous.
 \end{enumerate}
 Then in the limit as $n\to\infty$,
 \begin{equation*}
-\wave_i \law \wtave + \frac{1}{\sqrt n} \normal{0}{\Iinv_\wstar}
+\wave_i \law \wtave + \frac{1}{\sqrt n} \normal{0}{\I^{-1}_\wstar}
 \end{equation*}
 Here the notation $\law$ denotes convergence in law,
 which is the standard notion of convergence for a sequence of probability distributions.
@@ -486,31 +745,34 @@ Because Spokoiny's theorem is non-asymptotic, the theorem that the estimator is 
 
 We provide a simple bound that shows that averaging does not improve the bias of our estimator,
 but reduces the variance at the rate $O((nm)^{-1})$.
-This bound is well known, but our analysis is significantly simpler and provides a sharp, easy to interpret constant factor.
+Similar bounds are well known (see Section \ref{sec:alt}).
+Our analysis has the following advantages:
+it requires fewer assumptions, has a simpler proof, and has an easy to interpret constant factor.
 The main idea of our technique is to show that the variance is normally distributed.
 The ideas in this proof will be used in Section \ref{sec:analreopt} where we show that the variance of $\wreopt$ is the same as $\wave$, but that the bias is reduced.
 
-\begin{theorem}
-Let $t>0$.
-Then with probability at least $1-\exp(-t)$,
+\ignore{
+\begin{lemma}
+We have that
 \begin{equation}
-\ltwo{\wstar-\wave}^2 \le \ltwo{\wstar-\E\wmle_i}^2 + \frac{v_t}{mn}
+\E\ltwo{\wstar-\wave}^2
+\le
+\E\ltwo{\wstar-\E\wmle_i}^2
++
+\frac{1}{m}\E\ltwo{\E\wmle_i-\wmle_i}^2
 \end{equation}
-where
-\begin{equation}
-v_t =
-\tr{\Iinv_{\wtave}}
-+ 2\sqrt{\tr ({\I^{-2}_{\wtave}})t}
-+ 2\ltwo{\Iinv_{\wtave}}t
-\end{equation}
-\end{theorem}
+\end{lemma}
 \begin{proof}
 It is well known that the MSE of an estimator is the sum of its bias and variance.
 That is,
 \begin{equation}
-\ltwo{\wstar-\wave}^2 = \ltwo{\wstar-\E\wave}^2 + \ltwo{\E\wave-\wave}^2
-\label{eq:biasvar}
+\E\ltwo{\wstar-\wave}^2
+=
+\E\ltwo{\wstar-\E\wave}^2
++
+\E\ltwo{\E\wave-\wave}^2
 \end{equation}
+First we consider the bias.
 By the linearity of expectation, we have that
 \begin{align}
 \E\wave
@@ -524,22 +786,96 @@ By the linearity of expectation, we have that
 \label{eq:expwave}
 \end{align}
 and so the bias
+$
+\E\ltwo{\wstar-\E\wave}^2
+=
+\E\ltwo{\wstar-\E\wmle_i}^2
+$.
+In words, the bias of the averaging estimator is the same as the bias of the estimator on an individual machine.
+
+Next we consider the variance.
+We use the definition of $\wave$ and Equation \ref{eq:expwave} above to conclude that
+\begin{align}
+\wave-\E\wave
+&=
+\frac{1}{m}\sum_{i=1}^m\wmle_i-\E\wave
+\\&=
+\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wave\right)
+\\&=
+\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)
+%\\&\sim
+%\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{\sqrt n}\normal\zero{I^{-1}_{\E\wave}}\right)
+%\\&=
+%\frac{1}{\sqrt {nm}}\normal\zero{I^{-1}_{\E\wave}}
+\end{align}
+Taking the norm and squaring both sides gives
+\begin{equation}
+\ltwo{\wave-\E\wave}
+=
+\ltwo{
+\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)
+}
+\end{equation}
+\end{proof}
+}
+
+\begin{theorem}
+Let $t>0$.
+Then with probability at least $1-\exp(-t)$,
+\begin{equation}
+\ltwo{\wstar-\wave} \le \ltwo{\wstar-\E\wmle_i} + \sqrt\frac{v_t}{mn}
+\end{equation}
+where
+\begin{equation}
+v_t =
+\tr{\I^{-1}_{\wtave}}
++ 2\sqrt{\tr \left({\I^{-2}_{\wtave}}\right)t}
++ 2\ltwo{\I^{-1}_{\wtave}}t
+\end{equation}
+\end{theorem}
+\begin{proof}
+We have by the triangle inequality that
+\begin{equation}
+\ltwo{\wstar-\wave} \le \ltwo{\wstar-\E\wave} + \ltwo{\E\wave-\wave}
+\label{eq:biasvar}
+\end{equation}
+The left term above captures the estimator's bias and the right term the variance.
+First we consider the bias.
+By the linearity of expectation, we have that
+\begin{align}
+\E\wave
+&=
+\E\frac{1}{m}\sum_{i=1}^m\wmle_i
+%\\&=
+=
+\frac{1}{m}\sum_{i=1}^m\E\wmle_i
+=
+\E\wmle_i
+\label{eq:expwave}
+\end{align}
+and so the bias term
 $\ltwo{\wstar-\E\wave}
 =
 \ltwo{\wstar-\E\wmle_i}
 $.
-Next, we see that the variance is a Gaussian random variable.
+In words, the bias of the combined averaging estimator is the same as the bias of the estimator on an individual machine.
+
+Now we consider the variance.
 We have by Equations \ref{eq:expwave} and \ref{eq:assumption} that
 \begin{align}
 \wave-\E\wave
 &=
+%\frac{1}{m}\sum_{i=1}^m\wmle_i-\E\wave
+%\\&=
 \frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wave\right)
+\label{eq:var1}
 \\&=
 \frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)
 \\&\sim
-\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{\sqrt n}\normal\zero{I^{-1}_{\E\wave}}\right)
+\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{\sqrt n}\normal\zero{\I^{-1}_{\E\wave}}\right)
 \\&=
-\frac{1}{\sqrt {nm}}\normal\zero{I^{-1}_{\E\wave}}
+\frac{1}{\sqrt {nm}}\normal\zero{\I^{-1}_{\E\wave}}
+\label{eq:var2}
 %\\&\sim
 %\frac{1}{m}\normal{m\E\wmle_i}{\frac{m}{n}I^{-1}}
 %\\&\sim
@@ -558,10 +894,12 @@ We have by Equations \ref{eq:expwave} and \ref{eq:assumption} that
 %\sim
 %\normal{\zero}{\frac{1}{nm}I^{-1}}
 %\end{equation}
-So bounding the variance reduces to bounding the norm of a Gaussian.
+In the last step we used the fact that adding a centered Gaussian to itself $m$ times is equivalent to multiplying the Gaussian by $\sqrt{m}$.
+%So bounding the variance reduces to bounding the norm of a Gaussian.
+Our last step is to bound the norm of the Gaussian in Equation \ref{eq:var2}.
 Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives that with probability at least $1-\exp(-t)$,
 \begin{equation}
-\ltwo{\E\wave-\wave}^2 \le \frac{v_t}{\sqrt{nm}}
+\ltwo{\E\wave-\wave} \le \sqrt\frac{v_t}{nm}
 \label{eq:ct1}
 \end{equation}
 %where
@@ -584,8 +922,15 @@ Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives that with pr
 %\label{eq:ct2}
 %\end{equation}
 Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:biasvar} gives the stated result.
-
 \end{proof}
+
+Note that this reduction in variance is essentially optimal.
+By an argument similar to Equations \ref{eq:var1}-\ref{eq:var2},
+we can show that the variance of the MLE trained on all of the data is
+\begin{equation}
+\wmle - \E\wmle \sim \frac{1}{\sqrt{mn}} \normal{\zero}{\I^{-1}_{\wmle}}
+\end{equation}
+The only difference is the location of the Fisher information matrix.
 
 %\begin{theorem}
 %Let $t>0$.
@@ -596,9 +941,9 @@ Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:b
 %where
 %\begin{equation}
 %v_t =
-%\tr{\Iinv_{\wtave}}
+%\tr{\I^{-1}_{\wtave}}
 %+ 2\sqrt{\tr ({\I^{-2}_{\wtave}})t}
-%+ 2\ltwo{\Iinv_{\wtave}}t
+%+ 2\ltwo{\I^{-1}_{\wtave}}t
 %\end{equation}
 %\end{theorem}
 
@@ -637,9 +982,9 @@ Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:b
 %&\le
 %\sqrt{
     %\frac{1}{m}
-    %\left(\tr{\Iinv_{\wtave}}
-        %+ 2\sqrt{\tr ({\Iinv_{\wtave}}^2)\tvar}
-        %+ 2\ltwo{\Iinv_{\wtave}}\tvar
+    %\left(\tr{\I^{-1}_{\wtave}}
+        %+ 2\sqrt{\tr ({\I^{-1}_{\wtave}}^2)\tvar}
+        %+ 2\ltwo{\I^{-1}_{\wtave}}\tvar
     %\right)
 %}
 %%}
@@ -652,45 +997,49 @@ Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:b
 \subsection{Analyzing $\wreopt$}
 \label{sec:analreopt}
 
-We now extend the analysis of the previous section to the $\wreopt$ estimator.
-We show that its variance is bounded by the variance of $\wave$,
-but that the bias shrinks as $O(1-m/d)$.
+%We now extend the analysis of the previous section to the $\wreopt$ estimator.
+%We show that its variance is bounded by the variance of $\wave$,
+%but that the bias shrinks as $O(1-m/d)$.
+%
+%Recall from Section \ref{sec:vcdim} that the estimator $\wreopt$ has low error with high probability compared to any parameters in the space $\Wave$.
+%Denote by $\proj\Wave$ the projection operator onto the space $\Wave$.
+%In this section, we analyze the bias and variance of $\proj\Wave\wstar$.
 
-Recall from Section \ref{sec:vcdim} that the estimator $\wreopt$ has low error with high probability compared to any parameters in the space $\Wave$.
-Denote by $\proj\Wave$ the projection operator onto the space $\Wave$.
-In this section, we analyze the bias and variance of $\proj\Wave\wstar$.
+%If $\A$ is an affine space, then denote by $\proj{\A}$ the projection operator onto $\A$.
+We introduce the following notation.
+If $\A$ is an arbitrary space,
+then the projection of a point $\x$ onto $\A$ is denoted by
+\begin{equation}
+\proj{\A}\x = \argmin_{\mathbf{a}\in\A} \ltwo{\mathbf{a}-\x}
+\end{equation}
+Recall that $\W$ is the vector space spanned by the $\wmle_i$s.
+In this section we analyze the estimator $\proj{\W}\wstar$.
 
 \begin{theorem}
+\label{thm:wave}
 Let $t>0$.
-Then we have that
+Then we have that with probability at least $(1-\exp(-t))^2$,
 \begin{equation}
-\ltwo{\wstar-\proj\Wave\wstar}
+\ltwo{\wstar-\proj\W\wstar}
 \le
+%b_t\sqrt{\left(1-\frac{m}{d}\right)}
 b_t\sqrt{\left(1-\frac{m}{d}\right)}
 +
 \sqrt\frac{v_{t}}{nm}
 \end{equation}
 where
+%$\lzero{\wave} < d$ is the number of non-zero entries in the $\wave$ vector,
 \begin{equation}
-b_t = \ltwo{\wstar-\E\wmle_i}\sqrt{t + 1}
+b_t = \frac{\lambda_{\min}}{\lambda_{\max}}\ltwo{\wstar-\E\wmle_i}\sqrt{t + 1}
 \end{equation}
-with probability at least $1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$,
-and $v_t$ is defined as in Theorem \ref{thm:}, Equation \ref{eq:} with probability at least $1-\exp(-t)$.
+%with probability at least $1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$,
+$\lambda_{\min}$ and $\lambda_{\max}$ are the minimum and maximum eigenvalues of $\I^{-1}_{\wave}$,
+and $v_t$ is defined as in Theorem \ref{thm:wave}.
 \end{theorem}
-%Define the spaces
-%\begin{align}
-%\W&=\vecspan\{\wmle_i - \wave\}_{i=1}^m\\
-%\Wave&=\affspan\{\wave_i\}_{i=1}^m\cup\{\wave\}\\
-%\Wtave&=\affspan\{\wave_i\}_{=1}^m\cup\{\wtave\}
-%%\Wave&=\vecspan\{\wave_i-\wave\}_{i=1}^m\\
-%%\Wtave&=\vecspan\{\wave_i-\wtave\}_{i=1}^m
-%\end{align}
-%Denote by $\proj\A$ to be the projection operator onto the space $\A$.
-%Denote by $I_\w$ the Fischer information matrix at the point $\w$.
 
 \ignore{
 \begin{theorem}
-%Assume that $n$ is large enough that $\wmle_i$ is distributed according to $\normal{\wtave}{\Iinv_{\wtave}}$.
+%Assume that $n$ is large enough that $\wmle_i$ is distributed according to $\normal{\wtave}{\I^{-1}_{\wtave}}$.
 %Let $\delta\in(0,1)$.
 %Then with probability at least $1-\delta$,
 We have that
@@ -721,9 +1070,9 @@ and for all $\tvar>0$,
 &\le
 \sqrt{
     \frac{1}{m}
-    \left(\tr{\Iinv_{\wtave}}
-        + 2\sqrt{\tr ({I^{-2}_{\wtave}})\tvar}
-        + 2\ltwo{\Iinv_{\wtave}}\tvar
+    \left(\tr{\I^{-1}_{\wtave}}
+        + 2\sqrt{\tr ({\I^{-2}_{\wtave}})\tvar}
+        + 2\ltwo{\I^{-1}_{\wtave}}\tvar
     \right)
 }
 \end{split}
@@ -740,9 +1089,9 @@ with probability at least $1-\exp(-\tvar)$.
 %&+
 %\sqrt{
     %\frac{1}{m}
-    %\left(\tr{\Iinv_{\wtave}}
-        %+ 2\sqrt{\tr ({\Iinv_{\wtave}}^2)t}
-        %+ 2\ltwo{\Iinv_{\wtave}}t
+    %\left(\tr{\I^{-1}_{\wtave}}
+        %+ 2\sqrt{\tr ({\I^{-1}_{\wtave}}^2)t}
+        %+ 2\ltwo{\I^{-1}_{\wtave}}t
     %\right)
 %}
 %\le
@@ -753,10 +1102,94 @@ with probability at least $1-\exp(-\tvar)$.
 }
 
 \begin{proof}
+This proof follows the same form as the proof for Theorem \ref{thm:wave}.
+We first decompose the error into a bias and variance component;
+then we bound each component separately.
+To decompose the error, we need to introduce the following affine space.
+\begin{align}
+\Waff&=\affspan \{\wmle_i\}_{i=1}^m
+\\
+\Waff_{\E}&=\affspan \{\wmle_i - \wave + \E\wave\}_{i=1}^m
+\end{align}
+We now have that
+\begin{align}
+\ltwo{\wstar-\proj\W\wstar}
+&\le
+\ltwo{\wstar-\proj\Waff\wstar}
+\\
+&\le
+\ltwo{\wstar-\proj{\Waff_\E}\wstar}
+%\\&
++
+\ltwo{\proj{\Waff_\E}\wstar-\proj\Waff\wstar}
+%\\&+
+%\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
+\end{align}
+The first line above follows because $\Waff\subseteq\W$,
+and the second by the triangle inequality.
+
+%Notice that $\Waff\subseteq\W$, so $\ltwo{\wstar-\proj\W\wstar} \le \ltwo{\wstar-\proj\Waff\wstar}$.
+%\begin{equation}
+%\Wtave=\{\x - \wave + \wtave : \x\in\Wave\}
+%\end{equation}
+%We have by the triangle inequality that
+%\begin{equation}
+%\begin{split}
+%\ltwo{\wstar-\proj\Wave\wstar}
+%&\le
+%\ltwo{\wstar-\proj\Wtave\wstar}
+%\\&+
+%\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
+%\end{split}
+%\end{equation}
+The left term above can be thought of as akin to the bias of the estimator $\proj\Wtave\wstar$,
+and the right term can be thought of as akin to the variance.
+
+We begin by bounding the right term.
+We have that with probability at least $1-\exp(-t)$,
+\begin{align}
+&\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
+\\
+&=
+\ltwo{(\proj\Wave\wstar+\wave-\wtave)-\proj\Wave\wstar}
+\\&=
+\ltwo{\wave-\wtave}
+\\&\le
+\sqrt\frac{v_t}{mn}
+\end{align}
+The first equality follows because the space $\Wtave$ is a translation of $\Wave$ by the vector $(\wave-\wtave)$.
+The probabilistic inequality is due to Equation \ref{eq:ct1} in the proof of Theorem \ref{thm:wave}.
+
+We now bound the left term.
+We have that
+%Note that $\proj\Wtave$ is not a linear projection but an affine projection.
+%We first apply a translation so that we are working with the linear projection $\proj\W$.
+\begin{align}
+\ltwo{\wstar-\proj\Wtave\wstar}
+&=
+\ltwo{(\wstar-\wtave)-\proj\W(\wstar-\wtave)}
+\\&=
+\ltwo{(I-\proj\W)(\wstar-\wtave)}
+\end{align}
+In the first step, we translate the vectors so that the affine projection onto $\Wtave$ becomes a linear projection onto $\W$.
+The operator $(I-\proj\W)$ is a random projection onto a $(d-m)$-dimensional space.
+
+%Now, $(I-\proj\W)$ is a random projection onto a subspace of dimension $d-m$.
+%(\fixme{This projection is not chosen uniformly at random because the covariance of $\wmle_i$ is not the identity.})
+%This gives us that for all $\tbias>0$,
+%\begin{equation}
+%\begin{split}
+%\prob{\ltwo{\wstar-\proj\Wtave\wstar} \ge \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}}&
+%\\
+%\le
+%\exp \bigg(-\frac{b}{2} (\tbias-\ln(\tbias+1))\bigg)~~&
+%\end{split}
+%\end{equation}
+\ignore{
 Note that the space $\Wave$ depends on the data.
 Therefore, we can think of $\proj\Wave\wstar$ as an estimator of $\wstar$.
-As in the proof of Theorem \ref{thm:},
-we begin by decomposing the MSE into its bias and variance components.
+As in the proof of Theorem \ref{thm:wave},
+we begin by decomposing the MSE of $\proj\Wave\wstar$ into its bias and variance components.
 \begin{equation}
 \begin{split}
 \ltwo{\wstar-\proj\Wave\wstar}^2
@@ -766,6 +1199,8 @@ we begin by decomposing the MSE into its bias and variance components.
 \ltwo{\E\proj\Wave\wstar-\proj\Wave\wstar}^2
 \end{split}
 \end{equation}
+We begin with the variance.
+
 %Define $\Wtave = \vecspan\{\wmle_i-\wtave\}_{i=1}^m$.
 %Then,
 We have that
@@ -785,6 +1220,17 @@ We have that
 The first line follows from the triangle inequality.
 The second line follows because every point in $\Wtave$ is a translation of a point in $\Wave$ by the vector $\wave-\wtave$.
 
+Define the spaces
+\begin{align}
+\W&=\vecspan\{\wmle_i - \wave\}_{i=1}^m\\
+\Wave&=\affspan\{\wave_i\}_{i=1}^m\cup\{\wave\}\\
+\Wtave&=\affspan\{\wave_i\}_{=1}^m\cup\{\wtave\}
+%\Wave&=\vecspan\{\wave_i-\wave\}_{i=1}^m\\
+%\Wtave&=\vecspan\{\wave_i-\wtave\}_{i=1}^m
+\end{align}
+Denote by $\proj\A$ to be the projection operator onto the space $\A$.
+Denote by $\I_\w$ the Fischer information matrix at the point $\w$.
+
 %\begin{lemma}
 %Let $a$ and $b$ be integers with $b<a$.
 %Let $\x$ be a random vector on the $a$ dimensional unit sphere.
@@ -796,6 +1242,7 @@ The second line follows because every point in $\Wtave$ is a translation of a po
 %\exp \left(\frac{b}{2}(-\beta+\ln(\beta+1))\right)
 %\end{equation}
 %\end{lemma}
+
 We will now bound the two terms in Equation \ref{eq:errdecomp} separately.
 To bound the left term, we introduce the following lemma.
 It is adapted from Lemma 2.2 in \cite{dasgupta2003elementary}.
@@ -835,6 +1282,7 @@ This gives us that for all $\tbias>0$,
 \exp \bigg(-\frac{b}{2} (\tbias-\ln(\tbias+1))\bigg)~~&
 \end{split}
 \end{equation}
+}
 
 \end{proof}
 
@@ -883,94 +1331,11 @@ This gives us that for all $\tbias>0$,
 %\end{equation}
 %Note that the inner $\w$ above is a vector of dimension $m$, not $d$ (as elsewhere).
 %In words
-%%In words, this estimator takes the data set $Z'$ and projects it onto the subspace spanned by the
+%%In words, this estimator takes the dataset $Z'$ and projects it onto the subspace spanned by the
 
 \newpage
 
 \clearpage
-
-\section{RELATED WORK}
-
-Related work can be divided into two categories:
-alternative $q$ estimators,
-and bounds on the communication complexity of distributed learning.
-
-\subsection{Alternative estimators}
-The simplest and most popular communication efficient estimator is the averaging estimator
-\begin{equation}
-\wave = \frac{1}{m}\sum_{i=1}^m \wmle_i
-\end{equation}
-\cite{mcdonald2009efficient}
- gave the first analysis of this estimator wherein they showed that the variance of the estimator reduces as $O(m^{-1/2})$, but that the bias of $\wave$ is the same as $\wmle_i$.
-\cite{zhang2012communication} showed that the Mean Squared Error (MSE) $\ltwo{\wave-\wstar}^2$ decays as $O((nm)^{-1} + n^{-2})$.
-This is slower than the optimal sequential algorithm which has a MSE of $O((mn)^{-2})$.
-Surprisingly, \cite{zhang2013divide} showed that in the special case of kernel ridge regression, a reduction in bias was not needed to have the MSE decay at the optimal sequential rate.
-By a careful choice of regularization parameter, they caused $\wmle_i$ to have lower bias but higher variance, so that the final estimate of $\wave$ had both reduced bias and variance.
-
-Other research has focused on modifications to the $\wave$ estimator to reduce bias.
-\cite{zinkevich2010parallelized} showed that if the training sets partially overlap each other (instead of being disjoint), then the resulting estimator will have lower bias.
-\cite{zhang2012communication} also provided a bootstrap average estimator,
-which works as follows.
-Let $r\in(0,1)$, and $X_i^r$ be a bootstrap sample of $X_i$ with $rn$ data points.
-Then the bootstrap average estimator is
-\begin{equation}
-\begin{aligned}
-\wmler_i &= \argmax_\w \sum_{\x\in X_i^r} f(x;\w)
-\\
-\waver &= \frac{1}{m}\sum_{i=1}^m \wmler_i
-\\
-\wboot & = \frac{\wave-r\waver}{1-r}
-\end{aligned}
-\end{equation}
-This estimator enjoys a MSE decaying as $O((nm)^{-1}+n^{-3})$.
-
-%An alternative definition of the $\wave$ estimator is
-%\begin{equation}
-%\wave = \argmin_\w \frac{1}{m}\sum_{i=1}^m \ltwo{\wmle_i-\w}^2
-%\end{equation}
-%It is easy to show that the two definitions are equivalent with standard calculus.
-
-\cite{liu2014distributed} propose a more Bayesian approach inspired by \cite{merugu2003privacy}.
-Instead of averaging the model's parameters,
-they directly ``average the models'' with the following KL-average estimator.
-\begin{equation}
-\wkl = \argmin_\w \sum_{i=1}^m \kl[\bigg]{p(\cdot;\wmle_i)}{p(\cdot;\w)}
-\end{equation}
-The minimization is performed via a bootstrap sample from the smaller models.
-This method has two main advantages.
-First, it is robust to reparameterizations of the model.
-Second, it is statistically optimal for the class of non-interactive optimization methods.
-(We show in the next section that their bound does not apply to our procedure due to our semi-interactive setting.)
-The main downside of the KL-average is that the minimization has a prohibitively high computational cost.
-Let $n^{kl}$ be the size of the bootstrap sample.
-Then the original implementation's MSE shrinks as $O((nm)^{-1}+(nn^{kl})^{-1})$.
-This implies that the bootstrap procedure requires as many samples as the original problem to get a MSE that shrinks at the same rate as the averaging estimator.
-\cite{han2016bootstrap} show a method to reduce this rate to $O((nm)^{-1}+(n^2n^{kl})^{-1})$ using control variates, but the procedure remains prohibitively expensive.
-Their experiments show the procedure scaling only to datasets of size $nm\approx10^4$,
-whereas our experiments involve a dataset of size $nm\approx10^8$
-
-\subsection{Performance bounds}
-
-Performance bounds come in two flavors: statistical and information theoretic.
-On the statistical side, \cite{liu2014distributed} showed that for an arbitrary function $q$ \emph{which does not depend on the data},
-$\ltwo{\wq-\wmle}^2$ decays as $\Omega(\gamma^2_\wstar I^{-1}_\wstar/n^2)$.
-Here $\gamma_\wstar$ is the statistical curvature of the model and $I_\wstar$ is the Fisher information.
-Furthermore, they show that $\wkl$ matches this bound.
-This bound is not relevant for our estimator because our merge function depends on the data.
-Furthermore, we directly optimize $\ltwo{\wq-\wstar}^2$ which is a more useful quantity in practice.
-
-\cite{shamir2014fundamental}, \cite{zhang2013information}, and \cite{garg2014communication} all provide information theoretic lower bounds on the sample complexity of non-interactive learning problems.
-As above, however, there results are not applicable in our semi-interactive setting.
-%provides general information theoretic bounds for what he terms learning with information constraints.
-%As a special case of Shamir's analysis is the non-interactive communication model where $q$ does not depend on the data.
-%When $q$ is allowed to depend on the data, his model no longer applies.
-There is one information theoretic lower bound that does apply to us.
-Let the true parameter vector $\wstar$ be $k$-sparse.
-That is, $\lzero{\wstar} \le k$.
-%Then \cite{zhang2013information} showed that at least $\Omega(mk/\log m)$ bits of communication are required in the non-interactive setting,
-%and \cite{garg2014communication} improved this lower bound to $\Omega(mk)$.
-Surprisingly, \cite{braverman2015communication} showed that the minimax optimal error rate for least squares regression requires $\Omega(m\cdot\min\{n,d\})$ bits of communication even in the fully interactive setting.
-This is important because sparsity does not reduce the amount of communication required, and this bound does apply in our setting.
 
 \newpage
 \ignore{
@@ -1063,15 +1428,16 @@ Then for all $t$,
 \end{equation}
 \end{lemma}
 }
+}
 
 \section{EXPERIMENTS}
+\label{sec:exp}
 
 \subsection{Synthetic Data}
 
 \subsection{Real World Advertising Data}
 
 \section{CONCLUSION}
-}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -1132,7 +1498,7 @@ The left term above can be bound directly using standard random projection techn
 %%\end{equation}
 %\end{lemma}
 %To apply Lemma \ref{lem:dasgupta},
-%notice that $\ltwo{\w-\proj{\V}\w} = \ltwo{(I-\proj\V)\w}$.
+%notice that $\ltwo{\w-\proj{\V}\w} = \ltwo{(\I-\proj\V)\w}$.
 %\begin{equation}
 %\prob{\ltwo{\w-\proj{V}\w} \ge \sqrt{t\left(1-\frac{m}{d}\right)}} \le \exp\left(\frac{d-m}{2}(1-t+\ln t)\right)
 %\end{equation}
