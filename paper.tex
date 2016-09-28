@@ -48,6 +48,9 @@
 \DeclareMathOperator*{\subG}{subG}
 \DeclareMathOperator*{\tr}{tr}
 
+%\newcommand{\smin}[1]{s_\text{min}({#1})}
+\newcommand{\smin}{s_\text{min}}
+\newcommand{\smax}{s_\text{max}}
 \newcommand{\zero}{\text{\textbf{0}}}
 \newcommand{\Zproj}{Z^{\textit{proj}}}
 \newcommand{\Zreopt}{Z^{\textit{owa}}}
@@ -115,6 +118,25 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{filecontents}{paper.bib}
+
+@article{scikit-learn,
+ title={Scikit-learn: Machine Learning in {P}ython},
+ author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+         and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+         and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+         Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+ journal={Journal of Machine Learning Research},
+ volume={12},
+ pages={2825--2830},
+ year={2011}
+}
+
+@article{kddcup2012,
+  author={Yanzhi Niu and Yi Wang and Gordon Sun and Aden Yue and Brian Dalessandro and Claudia Perlich and Ben Hamner},
+  title = {The Tencent Dataset and KDD-Cup'12},
+  howpublished = {URL \url{http://www.kddcup2012.org/c/kddcup2012-track2}},
+  year = {2012}
+}
 
 @book{lehmann1999elements,
   title={Elements of large-sample theory},
@@ -765,6 +787,12 @@ The only condition of our analysis is that the estimation error has sub-Gaussian
 We first state this condition formally,
 then explain why this condition is mild.
 
+%\begin{assumption}
+%The Fisher information matrix $\I_\wstar$ is positive definite.
+%\end{assumption}
+%
+%Condition 1 above implies that the inverse $\I_\wstar^{-1}$ and square root $\I_\wstar^{1/2}$ exist.
+
 %That is, we assume there exists a constant $c$ such that
 %\begin{equation}
 %%\prob{\ltwo{\wmle_i-\wstar} > t\sqrt{\frac{d}{n}}} \le \exp\left(-ct^2\right)
@@ -778,24 +806,25 @@ Let $t>0$ and $\sigma^2$ be a constant called the \emph{variance proxy}.
 Then with probability at least $1-\exp(-\sigma^2t^2/2)$,
 \begin{equation}
 %\ltwobig{\I^{-1/2}_\wstar(\wmle_i-\wstar)} < \frac{t}{\sqrt n}
-\ltwobig{\I^{-1/2}_\wstar(\wmle_i-\E\wmle_i)} < \frac{t}{\sqrt n}
+\sqrt n \ltwobig{\I^{-1/2}_\wstar(\wmle_i-\E\wmle_i)} < t
 ,
 \end{equation}
-where $\I_\wstar$ is the Fisher information matrix.
+where $\I_\wstar$ is the positive definite Fisher information matrix.
 \end{assumption}
 
 This is a mild condition that is known to hold in many situations of interest.
 In the asymptotic regime when $n\to\infty$,
+very strong results are known.
 %this condition is known as root-$n$ consistency.
 %In this case,
-the variance proxy $\sigma^2=1$,
+The variance proxy $\sigma^2=1$,
 and the distribution of the estimation error is truly Gaussian.
 Theorem 7.5.2 of \cite{lehmann1999elements} provides a particularly simple exposition.
 Lehman's theorem requires only that $f$ be three times differentiable,
 the data points be i.i.d.,
 and some mild identifiability conditions.
-Very strong results are known in the asymptotic regime.
-For example, Condition 1 is satisfied even without the i.i.d. assumption.
+More sophisticated analyses show that Condition 1 holds very generally.
+For example, the i.i.d. assumption is not strictly necessary.
 See for example \cite{spokoiny2012parametricestimation}.
 
 Similar results hold in the non-asymptotic case $n<\infty$,
@@ -804,17 +833,17 @@ Most non-asymptotic results of this form require that the data points be sub-Gau
 For example, \cite{negahban2009unified} considers the case when the data points are sub-Gaussian, the likelihood satisfies a ``restricted strong convexity condition,'' and the regularizer is decomposable.
 More recently, \cite{sivakumar2015beyond} showed Condition 1 holds when the data are only sub-exponential.
 The strongest non-asymptotic results on the estimation error known to the authors is due to \cite{spokoiny2012parametricestimation}.
-Spokoiny requires only a mild exponential moment condition (and does not even require the data be i.i.d.);
-but can show that Condition 1 is satisfied only for $t < O(n)$.
+Spokoiny does not require any conditions on the data,
+but can show that Condition 1 is satisfied only up to $t < O(n)$.
 
-Our condition is more general than the conditions used in previous work.
-\cite{zhang2012communication} for example require that the parameter space $\Theta$ be bounded,
-and every bounded random variable is automatically sub-Gaussian by definition.
+Our condition is more general than the conditions required in previous work.
+\cite{zhang2012communication} for example require that the parameter space $\Theta$ be bounded.
+This condition implies Condition 1 because every bounded random variable is automatically sub-Gaussian by definition.
 
 In conclusion,
 there are many ways to verify that Condition 1 holds.
 Pick whichever one suits your problem.
-With this condition assumed, our results are elementary.
+%With this condition assumed, our results are elementary.
 
 \subsection{Analysis of $\wave$}
 
@@ -858,6 +887,7 @@ v_t =
 + 2\sqrt{\tr \left({\I^{-2}_{\wstar}}\right)t}
 + 2\ltwo{\I^{-1}_{\wstar}}t
 \right)
+\label{eq:vt}
 \end{equation}
 \end{theorem}
 
@@ -902,14 +932,18 @@ We have that
 %\\&=
 \ltwobig{\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)}
 \\&=
-\ltwobig{\frac{1}{m}\sum_{i=1}^m\I^{-1/2}_\wstar\I^{1/2}_\wstar\left(\wmle_i-\E\wmle_i\right)}
-\\&\sim
-\ltwobig{\frac{1}{m}\sum_{i=1}^m\I^{-1/2}_\wstar\subnormal{\sigma^2}}
-\\&\sim
-\frac{1}{\sqrt m}\ltwobig{\I^{-1/2}_\wstar\subnormal{\sigma^2}}
+%\ltwobig{\frac{1}{m}\sum_{i=1}^m\I^{-1/2}_\wstar\I^{1/2}_\wstar\left(\wmle_i-\E\wmle_i\right)}
+%\frac{1}{m\sqrt{n}}\ltwobig{\I^{-1/2}_\wstar\sum_{i=1}^m\sqrt{n}\I^{1/2}_\wstar\left(\wmle_i-\E\wmle_i\right)}
+\frac{1}{m\sqrt{n}}\ltwobig{\I^{-1/2}_\wstar\sum_{i=1}^m\Delta_i}
+%\\&\sim
+%\ltwobig{\frac{1}{m}\sum_{i=1}^m\I^{-1/2}_\wstar\subnormal{\sigma^2}}
+%\frac{1}{m\sqrt{n}}\ltwobig{\I^{-1/2}_\wstar\sum_{i=1}^m\subnormal{\sigma^2}}
+%\\&\sim
+%\frac{1}{\sqrt {mn}}\ltwobig{\I^{-1/2}_\wstar\subnormal{\sigma^2}}
+%\frac{1}{\sqrt{mn}}\ltwobig{\I^{-1/2}_\wstar\sqrt{n}\I^{1/2}_\wstar\left(\wmle_i-\E\wmle_i\right)}
 %\\&=
 %\frac{1}{\sqrt {nm}}\normal\zero{\I^{-1}_{\E\wave}}
-\label{eq:var2}
+\label{eq:var1}
 %\\&\sim
 %\frac{1}{m}\normal{m\E\wmle_i}{\frac{m}{n}I^{-1}}
 %\\&\sim
@@ -922,20 +956,60 @@ We have that
 %\wave-\E\wave
 %&\sim
 \end{align}
+where
+\begin{equation}
+\Delta_i = \sqrt n \I^{1/2}_\wstar\left(\wmle_i-\E\wmle_i\right)
+.
+\end{equation}
+Notice that each of the $\Delta_i$ are i.i.d. centered sub-Gaussian random vectors.
+Centered sub-Gaussian random vectors inherit the following basic property from centered Gaussian random vectors:
+The sum of $m$ i.i.d. sub-Gaussians has the same distribution as $\sqrt{m}$ times the sub-Gaussian.
+That is, $\sum_{i=1}^m \Delta_i \sim \sqrt{m}\Delta_1$.
+Substituting into Equation \ref{eq:var1} gives
+\begin{equation}
+\ltwobig{\wave-\E\wave}
+\sim
+\frac{1}{\sqrt{mn}}\ltwobig{\I^{-1/2}_\wstar\Delta_1}
+.
+\label{eq:var2}
+\end{equation}
+
 %Centering the distribution and applying Equation \ref{eq:expwave} gives
 %\begin{equation}
 %\E\wave-\wave
 %\sim
 %\normal{\zero}{\frac{1}{nm}I^{-1}}
 %\end{equation}
-In the last step we used the fact that adding a centered Gaussian to itself $m$ times is equivalent to multiplying the Gaussian by $\sqrt{m}$.
+%In the last step we used the fact that adding a sub-Gaussian random variable to itself $m$ times is equivalent lto multiplying the Gaussian by $\sqrt{m}$.
 %So bounding the variance reduces to bounding the norm of a Gaussian.
-Our last step is to bound the norm of the Gaussian in Equation \ref{eq:var2}.
-Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives that with probability at least $1-\exp(-t)$,
+
+Our last step is to bound the norm in the right hand side of Equation \ref{eq:var2}.
+Theorem 2.1 from \cite{hsu2012tail} gives a bound on the norm of a positive semidefinite matrix times a sub-Gaussian random variable.
+Applying the theorem gives that %with probability at least $1-\exp(-t)$,
 \begin{equation}
-\ltwo{\E\wave-\wave} \le \sqrt\frac{v_t}{nm}
+\prob{
+    \ltwobig{\I^{-1/2}_\wstar\Delta_1} < \sqrt{v_t}
+}
+\ge 1-\exp(-t)
+,
+\end{equation}
+where $v_t$ is defined as in Equation \ref{eq:vt}.
+And so the variance of $\wave$ satisfies
+\begin{equation}
+\prob{
+\ltwobig{\wave-\E\wave}
+<
+\sqrt\frac{v_t}{{mn}}
+}
+\ge 1-\exp(-t)
+.
 \label{eq:ct1}
 \end{equation}
+%and so
+%\begin{equation}
+%\ltwo{\E\wave-\wave} \le \sqrt\frac{v_t}{nm}
+%\label{eq:ct1}
+%\end{equation}
 %where
 %\begin{equation}
 %\begin{aligned}
@@ -959,13 +1033,15 @@ Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:b
 \end{proof}
 
 Note that this reduction in variance is essentially optimal.
-By an argument similar to Equations \ref{eq:var1}-\ref{eq:var2},
-we can show that the variance of the maximum likelihood estimator trained on all of the data is
-\begin{equation}
-\wmle - \E\wmle \sim \frac{1}{\sqrt{mn}} \normal{\zero}{\I^{-1}_{\wmle}}
-\label{eq:var3}
-\end{equation}
-The only difference between Equations \ref{eq:var2} and \ref{eq:var3} is the location of the Fisher information matrix.
+If we apply Condition 2 to the estimator $\wmle$ instead of $\wmle_i$,
+then we are assuming that the variance of $\wmle$ reduces at this same rate.
+%By an argument similar to Equations \ref{eq:var1}-\ref{eq:var2},
+%we can show that the variance of the maximum likelihood estimator trained on all of the data is
+%\begin{equation}
+%\wmle - \E\wmle \sim \frac{1}{\sqrt{mn}} \normal{\zero}{\I^{-1}_{\wmle}}
+%\label{eq:var3}
+%\end{equation}
+%The only difference between Equations \ref{eq:var2} and \ref{eq:var3} is the location of the Fisher information matrix.
 
 \subsection {Analysis of $\wowa$}
 
@@ -983,8 +1059,105 @@ and that $\wowa$ is the maximum likelihood estimator when the parameter space is
 Our next result shows that as the number of machines increases,
 the distance between $\W$ and $\wstar$ decreases.
 
+\begin{lemma}
+Assume Condition 1 holds.
+Let $t>0$.
+Then we have that with probability at least $1-\exp((d-m)(-t+\ln(t+1)))$,
+\begin{equation}
+\ltwo{\wstar-\proj\W\wstar}
+=
+(t+1)\sqrt{\smin\smax\left(1-\frac{m}{d}\right)}\ltwo{\wstar - \wave}
+\end{equation}
+where $\smin$ and $\smax$ are the minimum and maximum eigenvalues of $\I_\wstar$.
+\end{lemma}
+
+\begin{proof}
+We have that
+\begin{align}
+%&\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+\ltwo{\wstar-\proj\W\wstar}
+%\nonumber
+%\\
+&=
+\ltwo{(\wstar-\wave) - (\proj\W\wstar - \wave)}
+\nonumber
+\\
+&=
+\ltwo{(\wstar-\wave) - \proj\W(\wstar - \wave)}
+\nonumber
+\\
+&=
+\ltwo{(I-\proj\W)(\wstar - \wave)}
+.
+\label{eq:i-projW}
+\end{align}
+Recall that we defined $\matW$ to be the $d\times m$ matrix with $i$th column equal $\wmle_i$.
+The column space of $\matW$ is $\W$.
+So the projection $\proj\W = \matW\matW^+$, where the superscript $^+$ is the Moore-Penrose pseudoinverse.
+Define the matrix $\matV=\sqrt{n}I^{1/2}\matW$.
+Then the columns of $\matV$ are sub-Gaussian by Condition 1,
+and we can write
+\begin{equation}
+\proj\W
+= \I^{-1/2} \matV \matV ^+ \I^{1/2}
+.
+\label{eq:vvp}
+\end{equation}
+Let $U\Sigma \trans V$ be the singular value decomposition of $\matV$,
+where $U$ and $V$ are orthogonal matrices and $\Sigma$ is the diagonal matrix of singular values.
+By the rotational invariance of the sub-Gaussian distribution,
+$U$ and $V$ are distributed uniformly over the orthogonal group of matrices.
+Substituting into Equation \ref{eq:vvp} gives
+\begin{align}
+\proj\W
+&= \I^{-1/2} (U\Sigma V^T)(U \Sigma V^T) ^+ \I^{1/2}
+\\
+&= \I^{-1/2} (U\Sigma V^T)(V \Sigma^+ U^T) \I^{1/2}
+\\
+&= \I^{-1/2} U\Sigma \Sigma^+ U^T \I^{1/2}
+.
+\label{eq:vvp}
+\end{align}
+Substituting into Equation \ref{eq:i-projW} gives
+\begin{align}
+~~~~~&\!\!\!\!\!\!\!\!\!\!\!\ltwo{\wstar-\proj\W\wstar}
+\nonumber
+\\
+&=
+\ltwo{(I-\I^{-1/2} U\Sigma \Sigma^+ U^T \I^{1/2})(\wstar - \wave)}
+\\
+&=
+\ltwo{\I^{-1/2} U(I-\Sigma \Sigma^+ )U^T \I^{1/2}(\wstar - \wave)}
+\\
+&=
+\sqrt{\smin}\ltwo{U(I-\Sigma \Sigma^+ )U^T \I^{1/2}(\wstar - \wave)}
+\\
+&=
+\sqrt{\smin}\ltwo{(I-\Sigma \Sigma^+ )U^T \I^{1/2}(\wstar - \wave)}
+\end{align}
+%The last line above follows from the rotational invariance of the $L2$ norm.
+The operator $(I-\Sigma\Sigma^+)\trans U$ projects a vector onto a randomly chosen subspace of dimension $d-m$.
+Lemma 2.2 from \cite{dasgupta2003elementary} provides a bound for this situation.
+For all $t>0$, with probability at least $1-\exp((d-m)(-t+\ln (t+1)))$,
+\begin{align}
+\ltwo{(I-\Sigma\Sigma^+)\trans U \x} \le (t+1) \sqrt{1-\frac{m}{d}}
+.
+\end{align}
+Substituting gives
+\begin{align}
+~~~~~&\!\!\!\!\!\!\!\!\!\!\!\ltwo{\wstar-\proj\W\wstar}
+\nonumber
+\\
+&=
+(t+1)\sqrt{\smin\left(1-\frac{m}{d}\right)}\ltwo{\I^{1/2}(\wstar - \wave)}
+\\
+&=
+(t+1)\sqrt{\smin\smax\left(1-\frac{m}{d}\right)}\ltwo{\wstar - \wave}
+\end{align}
+
+\ignore{
 \begin{theorem}
-Assume Equation \ref{eq:assumption} holds.
+Assume Condition 1 holds.
 Let $t>0$.
 Then we have that with probability at least $(1-\exp(-t))^2$,
 \begin{equation}
@@ -1005,326 +1178,166 @@ $\lambda_{\min}$ and $\lambda_{\max}$ are the minimum and maximum eigenvalues of
 and $v_t$ is defined as in Theorem \ref{thm:wave}.
 \end{theorem}
 
-In the remainder of this section,
-we first state some simple conditions wherein the central limit theorem holds;
-then we prove Theorems 1 and 2.
-
-\subsection { The Central Limit Theorem}
-\label{sec:clt}
-
-The assumption in Equation \ref{eq:assumption} is motivated by the central limit theorem for maximum likelihood estimation.
-There are many versions of this theorem.
-Theorem 7.5.2 of \cite{lehmann1999elements} is particularly simple version and reproduced below.
-The notation has been changed to match ours.
-\begin{theorem}
-\label{thm:clt}
-Assume the following mild regularity conditions:
-\begin{enumerate}[noitemsep,topsep=0pt]%,label=(\itshape\roman*)]
-\item the model is correctly specified, identifiable, and consistent;
-\item all data points in $Z_i$ are i.i.d.;
-\item the parameter space $\Theta$ is open;
-\item the matrix $\I_{\wtave}$ is non-singular;
-\item the support set $A = \{(y,\x) : f(y,\trans\x\theta) > 0\}$ is independent of $\theta$;
-and \item for all $(y,\x)\in A$, $f(y,\trans\x\theta)$ is three times differentiable with respect to $\theta$,
-and the third derivative is continuous.
-\end{enumerate}
-Then in the limit as $n\to\infty$,
-\begin{equation*}
-\wtave - \wave_i \law \frac{1}{\sqrt n} \normal{0}{\I^{-1}_\wstar}
-\end{equation*}
-Here the notation $\law$ denotes convergence in law,
-which is the standard notion of convergence for a sequence of probability distributions.
-\end{theorem}
-
-Note that Theorem \ref{thm:clt} does not require the likelihood $f$ to be convex.
-
-There are many generalizations of Theorem \ref{thm:clt}.
-For example, Theorem 5.2 in \cite{spokoiny2012parametricestimation} provides finite sample bounds with explicit dependence on the degree of model misspecification, optimization error, and the lack of independence in the data variables.
-Because Spokoiny's theorem is non-asymptotic,
-the distribution of the estimator is a sub-Gaussian random variable.
-This more general setting requires more extensive notation,
-but all of our results hold.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection {Proof of Theorem 1}
-
-We have by the triangle inequality that
-\begin{equation}
-\ltwo{\wstar-\wave} \le \ltwo{\wstar-\E\wave} + \ltwo{\E\wave-\wave}
-\label{eq:biasvar}
-\end{equation}
-The left term above captures the estimator's bias and the right term the variance.
-First we consider the bias.
-By the linearity of expectation, we have that
-\begin{align}
-\E\wave
-&=
-\E\frac{1}{m}\sum_{i=1}^m\wmle_i
-%\\&=
-=
-\frac{1}{m}\sum_{i=1}^m\E\wmle_i
-=
-\E\wmle_i
-\label{eq:expwave}
-\end{align}
-and so the bias term
-$\ltwo{\wstar-\E\wave}
-=
-\ltwo{\wstar-\E\wmle_i}
-$.
-In words, the bias of the combined averaging estimator is the same as the bias of the estimator on an individual machine.
-
-Now we consider the variance.
-We have by Equations \ref{eq:expwave} and \ref{eq:assumption} that
-\begin{align}
-\wave-\E\wave
-&=
-%\frac{1}{m}\sum_{i=1}^m\wmle_i-\E\wave
-%\\&=
-\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wave\right)
-\label{eq:var1}
-\\&=
-\frac{1}{m}\sum_{i=1}^m\left(\wmle_i-\E\wmle_i\right)
-\\&\sim
-\frac{1}{m}\sum_{i=1}^m\left(\frac{1}{\sqrt n}\normal\zero{\I^{-1}_{\E\wave}}\right)
-\\&=
-\frac{1}{\sqrt {nm}}\normal\zero{\I^{-1}_{\E\wave}}
-\label{eq:var2}
-%\\&\sim
-%\frac{1}{m}\normal{m\E\wmle_i}{\frac{m}{n}I^{-1}}
-%\\&\sim
-%\normal{\E\wmle_i}{\frac{1}{nm}I^{-1}}
-%\\
-%\wave-\E\wmle_i
-%&\sim
-%\normal{\zero}{\frac{1}{nm}I^{-1}}
-%\\
-%\wave-\E\wave
-%&\sim
-\end{align}
-%Centering the distribution and applying Equation \ref{eq:expwave} gives
-%\begin{equation}
-%\E\wave-\wave
-%\sim
-%\normal{\zero}{\frac{1}{nm}I^{-1}}
-%\end{equation}
-In the last step we used the fact that adding a centered Gaussian to itself $m$ times is equivalent to multiplying the Gaussian by $\sqrt{m}$.
-%So bounding the variance reduces to bounding the norm of a Gaussian.
-Our last step is to bound the norm of the Gaussian in Equation \ref{eq:var2}.
-Applying the bound in Proposition 1.1 from \cite{hsu2012tail} gives that with probability at least $1-\exp(-t)$,
-\begin{equation}
-\ltwo{\E\wave-\wave} \le \sqrt\frac{v_t}{nm}
-\label{eq:ct1}
-\end{equation}
-%where
-%\begin{equation}
-%\begin{aligned}
-%v_t'
-   %= \tr\left({\frac{1}{mn}\I^{-1}_{\wtave}}\right)
-%+ 2&\sqrt{\tr \left({\frac{1}{mn}\I^{-1}_{\wtave}}\right)^2t}&
-%\\+ 2\ltwo{\frac{1}{nm}\I^{-1}_{\wtave}}t&
-%\end{aligned}
-%\end{equation}
-%Then by the linearity of trace and scalability of norms,
-%\begin{equation}
-%v_t' =
-%\frac{1}{mn}\left(
-%\tr\I^{-1}_{\wtave}
-%+ 2\sqrt{\tr \I^{-2}_{\wtave}t}
-%+ 2\ltwo{\I^{-1}_{\wtave}}t
-%\right)
-%\label{eq:ct2}
-%\end{equation}
-Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:biasvar} gives the stated result.
-
-Note that this reduction in variance is essentially optimal.
-By an argument similar to Equations \ref{eq:var1}-\ref{eq:var2},
-we can show that the variance of the maximum likelihood estimator trained on all of the data is
-\begin{equation}
-\wmle - \E\wmle \sim \frac{1}{\sqrt{mn}} \normal{\zero}{\I^{-1}_{\wmle}}
-\label{eq:var3}
-\end{equation}
-The only difference between Equations \ref{eq:var2} and \ref{eq:var3} is the location of the Fisher information matrix.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsection {Proof of Theorem 2}
-
-%Using the triangle inequality, we decompose $\ltwo{\wowa-\wstar}$ into three components:
-%
-%\begin{equation}
-%\begin{aligned}
-%\ltwo{\wowa-\wstar}
-%&\le
-%\ltwo{\wowa-\wowastar}
-%\\&
-%+
-%\ltwo{\wowastar - \proj{\Wowa}\wstar}
-%\\&
-%+
-%\ltwo{\proj{\Wowa}\wstar - \wstar}
-%\end{aligned}
-%\end{equation}
-%The first term $\ltwo{\wowa-\wowastar}$ captures the approximation error due to the limited number of points in the second round of optimization.
-%The result follows by first bounding each of these terms individually,
-%then applying the union bound.
-%
-%\subsubsection{Bounding the first term}
-%
-%Our first lemma is a direct consequence of the central limit theorem.
-%%\begin{lemma}
-%%With probability at least $\delta$,
-%%\begin{equation}
-%%\ltwo{\wowa-\wowastar} \le
-%%\end{equation}
-%%\end{lemma}
-%
-%\subsubsection{Bounding the second term}
-%The next lemma is a direct consequence of assumptions.
-%
-%\subsubsection{Bounding the third term}
-%
-%
-%\subsection {Analyzing $\wowa$}
-%
-%We now extend the analysis of the previous section to the $\wowa$ estimator.
-%We show that its variance is bounded by the variance of $\wave$,
-%but that the bias shrinks as $O(1-m/d)$.
-%
-%Recall from Section \ref{sec:vcdim} that the estimator $\wowa$ has low error with high probability compared to any parameters in the space $\Wave$.
-%Denote by $\proj\Wave$ the projection operator onto the space $\Wave$.
-%In this section, we analyze the bias and variance of $\proj\Wave\wstar$.
-
-%If $\A$ is an affine space, then denote by $\proj{\A}$ the projection operator onto $\A$.
-
-%\begin{theorem}
-%Let $t>0$.
-%Then we have that with probability at least $(1-\exp(-t))^2$,
-%\begin{equation}
-%\ltwo{\wstar-\proj\W\wstar}
-%\le
-%%b_t\sqrt{\left(1-\frac{m}{d}\right)}
-%b_t\sqrt{\left(1-\frac{m}{d}\right)}
-%+
-%\sqrt\frac{v_{t}}{nm}
-%\end{equation}
-%where
-%%$\lzero{\wave} < d$ is the number of non-zero entries in the $\wave$ vector,
-%\begin{equation}
-%b_t = \frac{\lambda_{\min}}{\lambda_{\max}}\ltwo{\wstar-\E\wmle_i}\sqrt{t + 1}
-%\end{equation}
-%%with probability at least $1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$,
-%$\lambda_{\min}$ and $\lambda_{\max}$ are the minimum and maximum eigenvalues of $\I^{-1}_{\wave}$,
-%and $v_t$ is defined as in Theorem \ref{thm:wave}.
-%\end{theorem}
-
-\ignore{
-\begin{theorem}
-%Assume that $n$ is large enough that $\wmle_i$ is distributed according to $\normal{\wtave}{\I^{-1}_{\wtave}}$.
-%Let $\delta\in(0,1)$.
-%Then with probability at least $1-\delta$,
-We have that
-\begin{equation}
-\ltwo{\wstar-\proj\Wave\wstar}
-\le \epsilon_{bias} + \epsilon_{var}
-\end{equation}
-where for all $\tbias>0$,
-\begin{equation*}
-%\begin{split}
-%\prob{
-    \epsilon_{bias}
-    \le
-    \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}
-%}
-%\\
-%\ge
-%1-\exp \bigg(-\frac{b}{2} (\beta-\ln(\beta+1))\bigg)~~&
-%\end{split}
-\end{equation*}
-with probability at least
-$1-\exp (-\frac{b}{2} (\tbias-\ln(\tbias+1)))$
-and for all $\tvar>0$,
-\begin{equation*}
-\begin{split}
-&\epsilon_{var}
-\\
-&\le
-\sqrt{
-    \frac{1}{m}
-    \left(\tr{\I^{-1}_{\wtave}}
-        + 2\sqrt{\tr ({\I^{-2}_{\wtave}})\tvar}
-        + 2\ltwo{\I^{-1}_{\wtave}}\tvar
-    \right)
-}
-\end{split}
-\end{equation*}
-with probability at least $1-\exp(-\tvar)$.
-
-%\begin{equation}
-%\begin{split}
-%&\ltwo{\wstar-\proj\Wave\wstar}
-%\\
-%&\le
-%\ltwo{\wstar-\wtave}\sqrt{(\beta + 1)\left(1-\frac{m}{d}\right)}
-%\\
-%&+
-%\sqrt{
-    %\frac{1}{m}
-    %\left(\tr{\I^{-1}_{\wtave}}
-        %+ 2\sqrt{\tr ({\I^{-1}_{\wtave}}^2)t}
-        %+ 2\ltwo{\I^{-1}_{\wtave}}t
-    %\right)
-%}
-%\le
-%\exp \bigg(-\frac{b}{2} (\beta-\ln(\beta+1))\bigg)~~&
-%\end{split}
-%\end{equation}
-\end{theorem}
-}
-
 This proof follows the same form as the proof for Theorem \ref{thm:wave}.
 We first decompose the error into a bias and variance component;
 then we bound each component separately.
-To decompose the error, we need to introduce the following affine space.
+
+Before we begin, we need to introduce the following vector space:
 \begin{align}
-\Waff&=\affspan \{\wmle_i\}_{i=1}^m
-\\
-\WaffE&=\affspan \{\wmle_i - \wave + \E\wave\}_{i=1}^m
+\V &= \vecspan \{\wmle_i - \wtave\}_{i=1}^m
+%,\\
+%A &= \{ \vv + \E\wave : \vv \in \V \}
+%,\\
+%A &= \{ \vv + \wave : \vv \in \V \}
+%.
 \end{align}
-We now have that
+%We also introduce notation for constructing affine spaces:
+%\begin{equation}
+%\V + \x = \{ \vv + \x : \vv \in \V \}
+%.
+%\end{equation}
+%We now have that
+We now have that:
+\begin{align}
+~~~~&\!\!\!\!\!\!\!\!\!\!\!\!\ltwo{\wstar-\proj\W\wstar}
+%&\ltwo{\wstar-\proj\W\wstar}
+\nonumber
+\\
+&\le
+\ltwo{(\wstar-\wtave) - \proj\W(\wstar-\wtave)}
+\\
+&\begin{aligned}
+&\le
+%\ltwo{
+\lVert(\wstar-\wtave)
+\\
+&~~~
+- (\proj\V(\wstar-\wtave) + \wtave - \wave)
+%}
+\rVert
+\end{aligned}
+\\
+&\begin{aligned}
+&\le
+\ltwo{(\wstar-\wtave) - \proj\V(\wstar-\wtave)}
+\\
+&~~~
++ \ltwo{\wtave - \wave}
+\end{aligned}
+\\
+&=
+\ltwo{(I-\proj\V)(\wstar-\wtave)} + \ltwo{\wtave - \wave}
+%
+%
+%
+%\\
+%&\le
+%\ltwo{\wstar-(\proj{\V}\wstar + \wave)}
+%\label{eq:step1}
+%\\
+%&\!\begin{aligned}
+%&\le
+%\ltwo{\wstar-(\proj{\V}\wstar+\wtave)}
+%\\&~~~
+%+
+%\ltwo{(\proj{\V}\wstar+\wtave)-(\proj{\V}\wstar+\wave)}
+%\end{aligned}
+%\label{eq:step2}
+%\\
+%&=
+%\ltwo{\wstar-(\proj{\V}\wstar+\wtave)}
+%+
+%\ltwo{\wtave-\wave}
+%\label{eq:step3}
+\end{align}
+Inequality \ref{eq:step1} follows because $(\proj\V\wstar + \wave) \in \W$.
+Inequality \ref{eq:step2} follows from the triangle inequality.
+The rightmost term in Equation \ref{eq:step3} is the variance of $\wave$,
+which we previously bounded with high probability in Equation \ref{eq:ct1}.
+
+The affine space $\V+\wave$ is a subset of $\W$.
+So,
 \begin{align}
 \ltwo{\wstar-\proj\W\wstar}
 &\le
-\ltwo{\wstar-\proj\Waff\wstar}
-\\
+\ltwo{\wstar-\proj{(\V+\wave)}\wstar}
+\end{align}
+By the triangle inequality, we have
+\begin{align}
+%\\
+&\begin{aligned}
+\ltwo{\wstar-\proj\W\wstar}
 &\le
-\ltwo{\wstar-\proj\WaffE\wstar}
-%\\&
+\ltwo{\wstar-\proj{(\V+\E\wave)}\wstar}
+\\&~~~~
 +
-\ltwo{\proj\WaffE\wstar-\proj\Waff\wstar}
+\ltwo{\proj{(\V+\E\wave)}\wstar-\proj{(\V+\wave)}\wstar}
+\end{aligned}
 %\\&+
 %\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
 \end{align}
-The first line above follows because $\Waff\subseteq\W$,
-and the second by the triangle inequality.
-The left term of the inequality above can be thought of as akin to the bias of the estimator $\proj\Waff\wstar$,
+The left term of the inequality above can be thought of as akin to the bias of the ``estimator'' $\proj\Waff\wstar$,
 and the right term can be thought of as akin to the variance.
 
 We begin by bounding the right term.
 We have that with probability at least $1-\exp(-t)$,
 \begin{align}
-&\ltwo{\proj\WaffE\wstar-\proj\Waff\wstar}
+&\ltwo{\proj{(\V+\wtave)}\wstar-\proj{(\V+\wave)}\wstar}
 \\
 &=
-\ltwo{(\proj\Waff\wstar+\wave-\wtave)-\proj\Waff\wstar}
+\ltwo{(\proj{(\V+\wave)}\wstar + \wave - \wtave) -\proj{(\V+\wave)}\wstar}
+%\ltwo{(\proj\Waff\wstar+\wave-\wtave)-\proj\Waff\wstar}
 \\&=
 \ltwo{\wave-\wtave}
 \\&\le
 \sqrt\frac{v_t}{mn}
 \end{align}
-The first equality follows because the space $\WaffE$ is a translation of $\Waff$ by the vector $(\wave-\wtave)$.
+%The first equality follows because the space $\WaffE$ is a translation of $\Waff$ by the vector $(\wave-\wtave)$.
 The probabilistic inequality is due to Equation \ref{eq:ct1} in the proof of Theorem \ref{thm:wave}.
+This shows that the variance of our estimator is the same as the variance of the averaging estimator,
+which we already argued is essentially optimal.
+
+%To decompose the error, we need to introduce the following two affine spaces:
+%\begin{align}
+%\Waff&=\affspan \{\wmle_i\}_{i=1}^m
+%,
+%\\
+%\WaffE&=\affspan \{\wmle_i + (\wave - \E\wave)\}_{i=1}^m
+%.
+%\end{align}
+%We now have that
+%\begin{align}
+%\ltwo{\wstar-\proj\W\wstar}
+%&\le
+%\ltwo{\wstar-\proj\Waff\wstar}
+%\\
+%&\le
+%\ltwo{\wstar-\proj\WaffE\wstar}
+%%\\&
+%+
+%\ltwo{\proj\WaffE\wstar-\proj\Waff\wstar}
+%%\\&+
+%%\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
+%\end{align}
+%The first line above follows because $\Waff\subseteq\W$,
+%and the second by the triangle inequality.
+%The left term of the inequality above can be thought of as akin to the bias of the ``estimator'' $\proj\Waff\wstar$,
+%and the right term can be thought of as akin to the variance.
+
+%We begin by bounding the right term.
+%We have that with probability at least $1-\exp(-t)$,
+%\begin{align}
+%&\ltwo{\proj\WaffE\wstar-\proj\Waff\wstar}
+%\\
+%&=
+%\ltwo{(\proj\Waff\wstar+\wave-\wtave)-\proj\Waff\wstar}
+%\\&=
+%\ltwo{\wave-\wtave}
+%\\&\le
+%\sqrt\frac{v_t}{mn}
+%\end{align}
+%The first equality follows because the space $\WaffE$ is a translation of $\Waff$ by the vector $(\wave-\wtave)$.
+%The probabilistic inequality is due to Equation \ref{eq:ct1} in the proof of Theorem \ref{thm:wave}.
 
 We now bound the left term.
 Define the vector space
@@ -1347,166 +1360,8 @@ Define $\matV$ to be the $d \times m$ matrix whose $i$th column is the vector $(
 Then $\proj{V} = \matV\matV^+$, where the superscript $^+$ indicates the Moore-Penrose pseudoinverse.
 Each entry of $\proj{V}$ is distributed as the sum of products of Gaussian distributions,
 and is therefore subGaussian.
-
-%Now, $(I-\proj\W)$ is a random projection onto a subspace of dimension $d-m$.
-%(\fixme{This projection is not chosen uniformly at random because the covariance of $\wmle_i$ is not the identity.})
-%This gives us that for all $\tbias>0$,
-%\begin{equation}
-%\begin{split}
-%\prob{\ltwo{\wstar-\proj\Wtave\wstar} \ge \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}}&
-%\\
-%\le
-%\exp \bigg(-\frac{b}{2} (\tbias-\ln(\tbias+1))\bigg)~~&
-%\end{split}
-%\end{equation}
-\ignore{
-Note that the space $\Wave$ depends on the data.
-Therefore, we can think of $\proj\Wave\wstar$ as an estimator of $\wstar$.
-As in the proof of Theorem \ref{thm:wave},
-we begin by decomposing the MSE of $\proj\Wave\wstar$ into its bias and variance components.
-\begin{equation}
-\begin{split}
-\ltwo{\wstar-\proj\Wave\wstar}^2
-&=
-\ltwo{\wstar-\E\proj\Wave\wstar}^2
-\\&+
-\ltwo{\E\proj\Wave\wstar-\proj\Wave\wstar}^2
-\end{split}
-\end{equation}
-We begin with the variance.
-
-%Define $\Wtave = \vecspan\{\wmle_i-\wtave\}_{i=1}^m$.
-%Then,
-We have that
-\begin{align}
-\ltwo{\wstar-\proj\Wave\wstar}
-&\le
-\ltwo{\wstar-\proj\Wtave\wstar}
-+
-\ltwo{\proj\Wtave\wstar-\proj\Wave\wstar}
-\\
-&=
-\ltwo{\wstar-\proj\Wtave\wstar}
-+
-\ltwo{\wave-\wtave}
-\label{eq:errdecomp}
-\end{align}
-The first line follows from the triangle inequality.
-The second line follows because every point in $\Wtave$ is a translation of a point in $\Wave$ by the vector $\wave-\wtave$.
-
-Define the spaces
-\begin{align}
-\W&=\vecspan\{\wmle_i - \wave\}_{i=1}^m\\
-\Wave&=\affspan\{\wave_i\}_{i=1}^m\cup\{\wave\}\\
-\Wtave&=\affspan\{\wave_i\}_{=1}^m\cup\{\wtave\}
-%\Wave&=\vecspan\{\wave_i-\wave\}_{i=1}^m\\
-%\Wtave&=\vecspan\{\wave_i-\wtave\}_{i=1}^m
-\end{align}
-Denote by $\proj\A$ to be the projection operator onto the space $\A$.
-Denote by $\I_\w$ the Fischer information matrix at the point $\w$.
-
-%\begin{lemma}
-%Let $a$ and $b$ be integers with $b<a$.
-%Let $\x$ be a random vector on the $a$ dimensional unit sphere.
-%Let $T : \mathbb{R}^a \to \mathbb{R}^b$ be the projection operator that preserves the first $b$ coordinates of a vector and drops the rest.
-%Then for all $\beta>0$,
-%\begin{equation}
-%\prob{\ltwo{T\x} \ge \sqrt{(\beta + 1)\frac{b}{a}}}
-%\le
-%\exp \left(\frac{b}{2}(-\beta+\ln(\beta+1))\right)
-%\end{equation}
-%\end{lemma}
-
-We will now bound the two terms in Equation \ref{eq:errdecomp} separately.
-To bound the left term, we introduce the following lemma.
-It is adapted from Lemma 2.2 in \cite{dasgupta2003elementary}.
-It has been simplified to ignore cases irrelevant for our purpose.
-\begin{lemma}
-Let $a$ and $b$ be integers with $b<a$.
-Let $\x\in\mathbb{R}^a$ be an arbitrary vector.
-Let $T : \mathbb{R}^a \to \mathbb{R}^b$ be projection onto a subspace of size $b$ distributed uniformly at random.
-Then for all $\beta>0$,
-\begin{equation}
-\begin{split}
-\prob{\ltwo{T\x} \ge \ltwo\x\sqrt{(\beta + 1)\frac{b}{a}}}&
-\\
-\le
-\exp \bigg(-\frac{b}{2} & (\beta-\ln(\beta+1))\bigg)
-\end{split}
-\end{equation}
-\end{lemma}
-To apply this lemma, note that $\proj\Wtave$ is not a linear projection but an affine projection.
-We first apply a translation so that we are working with the linear projection $\proj\W$.
-\begin{align}
-\ltwo{\wstar-\proj\Wtave\wstar}
-&=
-\ltwo{(\wstar-\wtave)-\proj\W(\wstar-\wtave)}
-\\
-&=
-\ltwo{(I-\proj\W)(\wstar-\wtave)}
-\end{align}
-Now, $(I-\proj\W)$ is a random projection onto a subspace of dimension $d-m$.
-(\fixme{This projection is not chosen uniformly at random because the covariance of $\wmle_i$ is not the identity.})
-This gives us that for all $\tbias>0$,
-\begin{equation}
-\begin{split}
-\prob{\ltwo{\wstar-\proj\Wtave\wstar} \ge \ltwo{\wstar-\wtave}\sqrt{(\tbias + 1)\left(1-\frac{m}{d}\right)}}&
-\\
-\le
-\exp \bigg(-\frac{b}{2} (\tbias-\ln(\tbias+1))\bigg)~~&
-\end{split}
-\end{equation}
 }
-
-
-%The following lemma is adapted from Theorem 3.1 in \cite{matouvsek2008variants}.
-%It has been simplified to ignore cases irrelevant for our purpose.
-%\begin{lemma}
-%Let $a$ and $b$ be integers with $a>b$.
-%Let $T\in\mathbb{R}^{a\times b}$ be a random matrix with entries drawn i.i.d. from the standard normal distribution.
-%Let $\x\in\mathbb{R}^a$ be an arbitrary vector.
-%Then there exists a constant $c$ such that for all $\delta\in(0,1)$,
-%\begin{equation*}
-%\prob{\ltwo{T\x} \le \left(\sqrt{b}+c\sqrt{\log\frac{\delta}{2}}\right)\ltwo\x} \le 1-\delta
-%\end{equation*}
-%\end{lemma}
-
-%\begin{cor}
-%%Assume that Conditions (1-5) hold.
-%%Then as $n\to\infty$,
-%%\begin{enumerate}
-%%\item
-%If $f$ is locally $\sigma$-strongly convex,
-%\begin{equation}
-%\ltwo{\wstar-\wowa} \le
-%\end{equation}
-%%\end{enumerate}
-%\end{cor}
-%
-%\begin{proof}
-%\end{proof}
-
-%\subsection{Proposed Solution}
-%
-%We propose the following solution.
-%Define the matrix $W : \mathbb{R}^{d\times m}$ to have $i$th column equal $\wmle_i$.
-%%That is,
-%%\begin{equation}
-%%W = (\wmle_1, \wmle_2, ..., \wmle_m)
-%%\end{equation}
-%Then our estimator is defined as
-%\begin{equation}
-%\begin{aligned}
-%\alpha &= \argmax_\w \sum _{(\x,y)\in Z_i} f(y,\trans\x W\w)
-%\\
-%\w &= \trans W \alpha
-%\end{aligned}
-%\end{equation}
-%Note that the inner $\w$ above is a vector of dimension $m$, not $d$ (as elsewhere).
-%In words
-%%In words, this estimator takes the dataset $Z'$ and projects it onto the subspace spanned by the
-
-\newpage
+\end{proof}
 
 \clearpage
 
@@ -1603,26 +1458,57 @@ Then for all $t$,
 }
 }
 
+\begin{figure*}[ht!]
+%\begin{tikzpicture}
+%\node at (0,2) {};
+%\node at (0,-2) {};
+\begin{tabular}{ccc}
+  \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-autoreg-laplace-log-1000-100-20}
+& \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-auto-laplace-log-1000-100-100}
+& \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-auto-laplace-log-1000-1000-100}
+\\
+  \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-autoreg-spike-log-1000-100-20}
+& \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-auto-spike-log-1000-100-100}
+& \includegraphics[width=0.3\textwidth]{img/logl1-star-logl2-auto-spike-log-1000-1000-100}
+\end{tabular}
+%\end{tikzpicture}
+\caption{test}
+\label{fig:lambda}
+\end{figure*}
+
 \section{EXPERIMENTS}
 \label{sec:exp}
 
-We test our parallelization procedure on two logistic regression tasks.
+We test our distributed estimator on two logistic regression tasks.
 The first task uses synthetic data.
-The second task uses real world add click data from the tencent search engine.
+The second task uses real world add click data from the Tencent search engine.
+
+In each experiment, we compare our $\wowa$ estimator with four baseline estimators:
+the naive estimator using the data from only a single machine $\wmle_i$;
+the averaging estimator $\wave$;
+the bootstrap estimator $\wboot$;
+and the oracle estimator of all data trained on a single machine $\wmle$.
+The $\wboot$ estimator has a parameter $r$ that needs to be tuned.
+We make an effort to present the $\wboot$ estimator in the best light possible.
+In all experiments we evaluate $\wboot$ with $r \in \{0.005,0.01,0.02,0.04,0.1,0.2,0.3\}$,
+which is a set recommended in the original paper \citep{zhang2012communication},
+and then report only the value of $r$ with highest true likelihood.
+Thus we are reporting an overly optimistic estimate of the performance of $\wboot$,
+and as we shall see our estimator $\wowa$ still tends to perform better.
 
 \subsection{Synthetic Data}
 
 \begin{figure*}[t]
 %\begin{tikzpicture}
 \begin{tabular}{ccc}
-  \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-100-star.pdf}
-& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-1000-star.pdf}
-& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-10000-star.pdf}
-\\
-  \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-100-star.pdf}
-& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-1000-star.pdf}
-& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-10000-star.pdf}
-\\
+  %\includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-100-star.pdf}
+%& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-1000-star.pdf}
+%& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-normal-log-1000-10000-star.pdf}
+%\\
+  %\includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-100-star.pdf}
+%& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-1000-star.pdf}
+%& \includegraphics[width=0.3\textwidth]{img/logl2-auto-logl2-auto-uniform-log-1000-10000-star.pdf}
+%\\
   \includegraphics[width=0.3\textwidth]{img/logl1-auto-logl2-auto-laplace-log-1000-100-star.pdf}
 & \includegraphics[width=0.3\textwidth]{img/logl1-auto-logl2-auto-laplace-log-1000-1000-star.pdf}
 & \includegraphics[width=0.3\textwidth]{img/logl1-auto-logl2-auto-laplace-log-1000-10000-star.pdf}
@@ -1633,53 +1519,53 @@ The second task uses real world add click data from the tencent search engine.
 \end{tabular}
 %\end{tikzpicture}
 \caption{}
+\label{fig:synscale}
 \end{figure*}
 
-\begin{figure}
-%\begin{tikzpicture}
-\begin{tabular}{c}
-\\ \includegraphics[width=0.45\textwidth]{img/logl2-star-logl2-auto-normal-log-1000-100-100.pdf}
-%\\ \includegraphics[width=0.45\textwidth]{img/logl2-star-logl2-auto-uniform-log-1000-100-100.pdf}
-\\ \includegraphics[width=0.45\textwidth]{img/logl1-star-logl2-auto-laplace-log-1000-100-100.pdf}
-\\ \includegraphics[width=0.45\textwidth]{img/logl1-star-logl2-auto-spike-log-1000-100-100.pdf}
-%\\ \includegraphics[width=0.45\textwidth]{img/logl2-star-logl2-auto-normal-log-1000-1000-100.pdf}
-%\\ \includegraphics[width=0.45\textwidth]{img/logl2-star-logl2-auto-normal-1000-100-100.pdf}
-\end{tabular}
-%\end{tikzpicture}
-\caption{
-    A similar effect happens when $d=1000$ or $d=10000$,
-    but it is much less pronounced.
-}
-\end{figure}
-
-We consider two logistic regression models.
-In the first,
-each component of the parameter vector $\theta_i$ is sampled i.i.d. from the standard normal distribution.
-This is the Bayesian interpretation of $L2$ regularization.
-In the second, $\theta_i$ is sampled i.i.d. from the Laplace (two-sided exponential) distribution with scale 1.
-This is the Bayesian interpretation of $L1$ regularization.
-In both models, the data points are then sampled as
+We generate the data according to the following sparse logistic regression model.
+Each component of the true parameter vector $\wstar$ is sampled i.i.d. from a spike and slab distribution.
+With probability 0.9, the component is 0;
+with probability 0.1, the component is sampled from a standard normal distribution.
+The data points are then sampled as
 \begin{equation}
 \begin{aligned}
-%\theta &\sim \normal{0}{I}
-%\\
 \x_i &\sim \normal{0}{I}
 ,
 ~~~
-%y_i &= \frac{1}{1+\exp(-\trans\x_i\theta)}
-y_i = \left(1+\exp(-\trans\x_i\theta)\right)^{-1}
+y_i = \left(1+\exp(-\trans\x_i\wstar)\right)^{-1}
+.
 \end{aligned}
 \end{equation}
+In all experiments, we use the $L1$ regularizer to induce sparsity in our estimates of $\wstar$.
+Our estimators will be biased because the model is misspecified.
+$L1$ regularization actually corresponds to a Laplace prior on the parameter vector.
+Results are qualitatively similar when using a uniform, normal, and Laplace prior on $\wstar$.
+These results are not shown due to space limitations.
 
-Our first experiment shows how the parallel algorithms scale as the number of machines $m$ increases.
+Our first experiment shows the sensitivity of the estimators to the strength of regularization $\lambda$.
+In this experiment, $\lambda$ was allowed to vary from $10^{-4}$ to $10^4$.
+For each value of $\lambda$, we randomly generated 50 datasets and calculated the corresponding estimators.
+Figure \ref{fig:lambda} shows the average of the results.
+Our $\wowa$ estimator exhibits significantly less sensitivity to the selection of $\lambda$.
+
+Our second experiment shows how the parallel algorithms scale as the number of machines $m$ increases.
 We fix $n=1000$ data points per machine, so the size of the dataset $mn$ grows as we add more machines.
 This simulates the typical ``big data'' scenario where data is abundant,
 but processing resources are scarce.
-We further consider three regimes:
-%high dimensional ($d=10000$), medium dimensional ($d=1000$), and low dimensional ($d=100$) data.
-more data than dimensions ($d=100$),
-one data point per dimension ($d=1000$),
-and less data than dimensions ($d=10000$).
+%We further consider three regimes:
+%more data than dimensions ($d=100$),
+%one data point per dimension ($d=1000$),
+%and less data than dimensions ($d=10000$).
+Each machine independently uses cross validation to select the $\lambda$ that best fits the data locally.
+There are three advantages to this method of parameter selection.
+First, there is no additional communication overhead for model selection because model selection is a completely local task.
+Second, existing optimizers have built-in model selection routines which make the process easy to implement.
+In our experiments, we use the default model selection procedure from Python's SciKit-Learn \citep{scikit-learn}.
+Third, the data may be best fit using different regularization strengths for each machine,
+and this method allows that to happen.
+The results are shown in Figure \ref{fig:synscale}.
+The performance of our method scales well with the number of machines,
+and in some cases even outperforms the oracle on all of the data.
 
 %The advantage of artificial data is that we know the true model parameters and can evaluate our estimators' performance using the mean squared error.
 %We test against two GLMs: an ordinary least squares regression and a logistic regression.
@@ -1721,10 +1607,23 @@ and less data than dimensions ($d=10000$).
 
 \subsection{Real World Advertising Data}
 
+In this section,
+we evaluate our estimator on real world data from the KDD 2012 Cup \citep{kddcup2012}.
+The goal is to predict whether a user will click on an add from the Tencent internet search engine.
+This dataset was previously used to evaluate the performance of $\wboot$ \citep{zhang2012communication}.
+
+This dataset is too large to fit on a single machine.
+There are 235,582,879 distinct data points,
+each of dimension 741,725.
+For each test, we split the data into 80 percent training data and 20 percent test data.
+The training data is further subdivided into 128 partitions,
+one for each of the machines used.
+
 \section{CONCLUSION}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\clearpage
 \bibliographystyle{plainnat}
 \bibliography{paper}
 
