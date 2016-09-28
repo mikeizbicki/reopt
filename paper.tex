@@ -51,6 +51,8 @@
 %\newcommand{\smin}[1]{s_\text{min}({#1})}
 \newcommand{\smin}{s_\text{min}}
 \newcommand{\smax}{s_\text{max}}
+\newcommand{\qhi}{q_\text{hi}}
+\newcommand{\qlo}{q_\text{lo}}
 \newcommand{\zero}{\text{\textbf{0}}}
 \newcommand{\Zproj}{Z^{\textit{proj}}}
 \newcommand{\Zreopt}{Z^{\textit{owa}}}
@@ -433,9 +435,16 @@ Our algorithm performs two rounds of communication,
 so it is not subject to the existing regret bounds of non-interactive algorithms.
 The amount of information communicated in the second round is small, however,
 so our algorithm retains the speed advantages of non-interactive algorithms.
-We now formally describe our problem and proposed solution.
 
-\subsection{Problem Statement}
+In the next section, we formally describe our problem setting and proposed solution.
+In Section 3, we compare our solution to related solutions.
+We highlight how the analysis of existing algorithms requires more limiting assumptions than our own,
+and show in detail why most existing non-interactive regret bounds do not apply to our problem.
+Section 4.1 presents a novel, very general analysis of the averaging estimator.
+Section 4.2 shows that two parameters to our algorithm $m$ and $\nreopt$ act as ``knobs'' that let the user easily trade off statistical performance for communication cost.
+Section 5 shows experimentally that our algorithm performs well.
+
+\section{Problem Statement and Solution}
 %\section{Problem Setting and Our Solution}
 
 %Let $\Theta\subseteq\mathbb{R}^d$ be the parameter space,
@@ -801,16 +810,20 @@ then explain why this condition is mild.
 %\prob{\ltwobig{\I^{-1/2}_\wstar(\wmle_i-\wstar)} > t\sqrt{d/n}} \le \exp\left(\frac{-\sigma^2t^2}{2}\right)
 %.
 %\end{equation}
-\begin{assumption}
+
+\newtheorem*{sgt}{The Sub-Gaussian Tail (SGT) Condition}
+\begin{sgt}
+Let $\theta$ be an estimator trained on $n$ data points.
 Let $t>0$ and $\sigma^2$ be a constant called the \emph{variance proxy}.
 Then with probability at least $1-\exp(-\sigma^2t^2/2)$,
 \begin{equation}
 %\ltwobig{\I^{-1/2}_\wstar(\wmle_i-\wstar)} < \frac{t}{\sqrt n}
-\sqrt n \ltwobig{\I^{-1/2}_\wstar(\wmle_i-\E\wmle_i)} < t
+%\sqrt n \ltwobig{\I^{-1/2}_\wstar(\wmle_i-\E\wmle_i)} < t
+\sqrt n \ltwobig{\I^{-1/2}_\wstar(\theta-\E\theta)} < t
 ,
 \end{equation}
-where $\I_\wstar$ is the positive definite Fisher information matrix.
-\end{assumption}
+where $\I_\wstar$ is the positive definite Fisher information matrix at the parameter vector's true value $\wstar$.
+\end{sgt}
 
 This is a mild condition that is known to hold in many situations of interest.
 In the asymptotic regime when $n\to\infty$,
@@ -836,9 +849,11 @@ The strongest non-asymptotic results on the estimation error known to the author
 Spokoiny does not require any conditions on the data,
 but can show that Condition 1 is satisfied only up to $t < O(n)$.
 
-Our condition is more general than the conditions required in previous work.
-\cite{zhang2012communication} for example require that the parameter space $\Theta$ be bounded.
-This condition implies Condition 1 because every bounded random variable is automatically sub-Gaussian by definition.
+%Our condition is more general than the conditions required in previous work.
+We require that $\wmle_i$ satisfy the SGT Condition.
+This is strictly more general than the conditions in previous work.
+\cite{zhang2012communication} for example require that the parameter space $\Theta$ be bounded (in addition to a number of conditions on the moments of the likelihood).
+A bounded parameter space implied that $\wmle_i$ satisfies the SGT Condition because every bounded random variable is automatically sub-Gaussian by definition.
 
 In conclusion,
 there are many ways to verify that Condition 1 holds.
@@ -872,7 +887,7 @@ it requires fewer assumptions, has a simpler proof, and has an easy to interpret
 
 \begin{theorem}
 \label{thm:wave}
-Assume Condition 1 holds.
+Assume $\wmle_i$ satisfies the SGT Condition.
 Let $t>0$.
 Then with probability at least $1-\exp(-t)$,
 \begin{equation}
@@ -1033,8 +1048,8 @@ Substituting Equations \ref{eq:expwave} and \ref{eq:ct1} into Equation \ref{eq:b
 \end{proof}
 
 Note that this reduction in variance is essentially optimal.
-If we apply Condition 2 to the estimator $\wmle$ instead of $\wmle_i$,
-then we are assuming that the variance of $\wmle$ reduces at this same rate.
+If we assume that $\wmle$ satisfies the SGT Condition,
+then we are assuming that the variance of $\wmle$ reduces at the same $O(1/\sqrt{mn})$ rate.
 %By an argument similar to Equations \ref{eq:var1}-\ref{eq:var2},
 %we can show that the variance of the maximum likelihood estimator trained on all of the data is
 %\begin{equation}
@@ -1045,24 +1060,73 @@ then we are assuming that the variance of $\wmle$ reduces at this same rate.
 
 \subsection {Analysis of $\wowa$}
 
-%Now we describe our main result.
-%First we introduce some notation.
-%Let $\proj{\Wowa}$ be the projection operator onto the space $\Wowa$.
-For our next results, we need to introduce the following notation.
-If $\A$ is an arbitrary space,
-then the projection of a point $\x$ onto $\A$ is denoted by
+Unlike the $\wave$ estimator,
+$\wowa$ reduces both bias and variance.
+The $m$ and $\nreopt$ parameters act as ``knobs'' that let us trade off lower statistical error for higher communication cost.
+%In particular, the number of machines $m$ acts as a ``knob'' that lets us
+%In this section, we present one main theorem and two supporting lemmas.
+%We begin our discussion with the following informal theorem statement.
+Before we present the formal analysis,
+we present a motivating informal analysis.
+
+\subsubsection{Informal Analysis}
+%The following theorem statement ignores constant factors.
+%Our main result can be stated with the following informal theorem.
+We first state our main result,
+then describe its implications.
+\newtheorem*{theoreminf}{Theorem 2 (Informal)}
+\begin{theoreminf}
+With high probability, we have that
 \begin{equation}
-\proj{\A}\x = \argmin_{\mathbf{a}\in\A} \ltwo{\mathbf{a}-\x}
+\ltwo{\wstar-\wowa}
+\le
+O\left(
+    \sqrt{\frac{1}{m\nreopt}}
+    +
+    \sqrt{\left(1-\frac{m}{d}\right)\ltwo{\wstar-\wave}}
+\right)
+\label{eq:informal}
 \end{equation}
-Recall that $\W$ is the vector space spanned by the $\wmle_i$s,
-and that $\wowa$ is the maximum likelihood estimator when the parameter space is restricted to $\W$.
-Our next result shows that as the number of machines increases,
-the distance between $\W$ and $\wstar$ decreases.
+\label{thm:informal}
+\end{theoreminf}
+The rightmost term captures the error of the optimal parameter vector constrained to $\W$.
+That is, if
+\begin{equation}
+\wowastar = \argmin_{\w\in\W} \int_{\X\times\Y} \left(f(y,\trans\x\w) + \lambda R(\w)\right) d(\x,y)
+,
+\end{equation}
+then the rightmost term is the error of $\ltwo{\wstar-\wowastar}$.
+Clearly, as $m \to d$, the space $\W \to \Theta$, so $\wowastar\to\wstar$, and $\ltwo{\wstar-\wowastar}\to 0$.
+
+The leftmost term above captures the error due to using only $\nreopt$ data points in the second round of optimization.
+That is, the left most term captures the error $\ltwo{\wowa-\wowastar}$.
+As $\nreopt\to n$, this error approaches the error of the oracle estimator trained on all the data $\ltwo{\wstar-\wmle}$.
+By increasing $m$ and $\nreopt$ we get an estimator that is closer to the sequential oracle
+but at the expense of a higher communication cost.
+
+\subsubsection{Formal Analysis}
+
+In this section we prove a version of Theorem 2 with explicit constant factors.
+We begin by introducing the following notation.
+The orthogonal projection of a point $\x$ onto the space $\W$ is denoted by
+\begin{equation}
+\proj{\W}\x = \argmin_{\w\in\W} \ltwo{\w-\x}
+.
+\end{equation}
+Our proof is divided into two lemmas.
+The most interesting work happens in the first lemma,
+wherein we bound $\ltwo{\wstar-\proj\W\wstar}$.
 
 \begin{lemma}
-Assume Condition 1 holds.
-Let $t>0$.
-Then we have that with probability at least $1-\exp((d-m)(-t+\ln(t+1)))$,
+\label{lem:proj}
+Assume $\wmle_i$ satisfies the SGT Condition.
+Let $t>0$ and
+\begin{equation}
+\delta = 1-\exp((d-m)(-t+\ln(t+1)))
+.
+\label{eq:delta}
+\end{equation}
+Then we have that with probability at least $\delta$,
 \begin{equation}
 \ltwo{\wstar-\proj\W\wstar}
 =
@@ -1362,6 +1426,97 @@ Each entry of $\proj{V}$ is distributed as the sum of products of Gaussian distr
 and is therefore subGaussian.
 }
 \end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Our next lemma bounds the error of $\wowa$ in terms of the error of other estimators whose error we know.
+%We introduce the following notation.
+
+\begin{lemma}
+%Assume that $\wmle_i$ satisfies Condition 1.
+%Let $\delta$ be defined as in Equation \ref{eq:delta} from Lemma \ref{lem:proj}.
+%Then with probability at least $1-\delta$,
+%\begin{equation}
+%\ltwo{\wstar-\wowa}
+%\le
+%\ltwo{\wowastar-\wowa}
+%+
+%\qlo^{-1} \qhi (
+%)
+%.
+%\end{equation}
+Let $\qhi,\qlo : \mathbb{R}^+ \to \mathbb{R}^+$ be monotonically increasing functions such that for all points $\w\in\Theta$,
+\begin{align}
+F(\wstar) - F(\w) &\ge \qlo \left( \ltwo {\wstar - \w} \right)
+,
+\\
+F(\wstar) - F(\w) &\le \qhi \left( \ltwo {\wstar - \w} \right)
+.
+\end{align}
+Then we have that
+\begin{equation}
+\ltwo {\wstar-\wowastar}
+\le
+\qlo^{-1} \left(
+    \qhi \left( \ltwo {\wstar - \proj\W\wstar} \right)
+\right)
+.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+By the triangle inequality, we have that
+\begin{align}
+\ltwo{\wstar-\wowa}
+\le
+\ltwo{\wstar-\wowastar} + \ltwo{\wowastar-\wowa}
+.
+\end{align}
+We bound the left hand term as follows.
+By the definition of $\qhi$ and $\qlo$, we have
+\begin{align}
+\qlo \left( \ltwo {\wstar-\wowastar} \right)
+&\le F(\wstar) - F(\wowastar)
+\\
+&\le F(\wstar) - F(\proj\W\wstar)
+\\
+&\le \qhi \left( \ltwo {\wstar - \proj\W\wstar} \right)
+.
+\end{align}
+%and so
+%\begin{equation}
+%\ltwo {\wstar-\wowastar}
+%\le
+%\qlo^{-1} \left(
+    %\qhi \left( \ltwo {\wstar - \proj\W\wstar} \right)
+%\right)
+%.
+%\end{equation}
+%Applying Lemma \ref{lem:proj} gives the stated result.
+Applying $\qlo^{-1}$ to both sides gives the stated result.
+\end{proof}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+We are now ready to state a formal version of the informal Theorem \ref{thm:informal}.
+
+\newtheorem*{theoremformal}{Theorem 2 (Formal)}
+\begin{theoremformal}
+Assume that both $\wmle_i$ and $\alpha$ satisfy the SGT Condition.
+Let $t>0$ and
+\begin{equation}
+\delta = (1-\exp((d-m)(-t+\ln(t+1))))(1-\exp(-\sigma^2t^2/2))
+.
+\end{equation}
+Then, with probability at least $\delta$,
+\begin{equation}
+\begin{aligned}
+%\ltwo{\wstar-\wowa}
+%&\le
+%{\wstar-\E\w}
+\end{aligned}
+\end{equation}
+\end{theoremformal}
 
 \clearpage
 
